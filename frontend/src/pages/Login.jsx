@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -7,6 +8,8 @@ const Login = () => {
         password: ''
     });
     const [error, setError] = useState('');
+    const { login } = useAuth();
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -26,9 +29,8 @@ const Login = () => {
             return;
         }
 
-        // In a later phase, this will connect to the backend context API
-        console.log('Login attempt:', formData);
-        // Proceed to dashboard simulation
+        login(formData);
+        navigate('/dashboard');
     };
 
     return (

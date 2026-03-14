@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Signup = () => {
     const [formData, setFormData] = useState({
@@ -9,6 +10,8 @@ const Signup = () => {
         confirmPassword: ''
     });
     const [error, setError] = useState('');
+    const { signup } = useAuth();
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -38,8 +41,8 @@ const Signup = () => {
             return;
         }
 
-        // In a later phase, this will connect to the backend context API
-        console.log('Signup attempt:', formData);
+        signup(formData);
+        navigate('/dashboard');
     };
 
     return (
