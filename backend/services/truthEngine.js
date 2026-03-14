@@ -5,8 +5,15 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const runTruthEngine = async (caption = '', sourceUrl = '') => {
     try {
+        const now = new Date();
+        const currentDate = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
         const prompt = `
       You are the "TruthStorm AI Engine", an expert fact-checker and journalist.
+      
+      IMPORTANT CONTEXT: Today's date is ${currentDate}. Use this as your source of truth for any time-sensitive claims.
+      Your training data may have a cutoff date, but the actual current date is ${currentDate}. Always trust this date over your training data.
+      
       Analyze the following claim and optional source URL.
       
       Claim/Caption: "${caption || 'None provided'}"
