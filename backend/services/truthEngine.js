@@ -8,13 +8,14 @@
 const HIGHLY_SUSPICIOUS = [
     'miracle cure', 'hoax', 'fake news', 'they don\'t want you to know',
     'banned', 'secret ingredient', 'illuminati', 'deep state',
-    'share before deleted', 'media won\'t show', '100% proof'
+    'share before deleted', 'media won\'t show', '100% proof',
+    'aliens', 'hiding the truth', 'government is giving', 'free money'
 ];
 
 const SENSATIONAL = [
     'breaking', 'shocking', 'unbelievable', 'you won\'t believe',
     'mind-blowing', 'exposed', 'urgent', 'warning', 'must watch',
-    'destroy', 'destroys', 'owned'
+    'destroy', 'destroys', 'owned', 'damage', 'disaster'
 ];
 
 const METRICS_AND_OBJECTIVE = [
