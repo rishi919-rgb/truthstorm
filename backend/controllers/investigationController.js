@@ -12,8 +12,8 @@ export const createInvestigation = async (req, res) => {
             return res.status(400).json({ message: 'Please provide at least a caption, image URL, or source URL.' });
         }
 
-        // Run the Truth Engine to analyze the content
-        const { credibilityScore, verdict, report } = runTruthEngine(caption, sourceUrl);
+        // Run the Truth Engine to analyze the content (async Gemini API call)
+        const { credibilityScore, verdict, report } = await runTruthEngine(caption, sourceUrl);
 
         const investigation = await Investigation.create({
             user: req.user._id,
