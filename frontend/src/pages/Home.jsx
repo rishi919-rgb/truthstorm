@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 const Home = () => {
     return (
         <div className="w-full max-w-7xl mx-auto space-y-16">
@@ -13,12 +15,12 @@ const Home = () => {
                     TruthStorm AI analyzes images and claims using advanced truth-engine logic to generate instant credibility scores and detailed investigation reports.
                 </p>
                 <div className="flex flex-col sm:flex-row justify-center gap-4">
-                    <button className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+                    <Link to="/investigate" className="inline-block px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
                         Start Investigation
-                    </button>
-                    <button className="px-8 py-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 font-bold rounded-xl transition-all shadow-sm">
+                    </Link>
+                    <Link to="/dashboard" className="inline-block px-8 py-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 font-bold rounded-xl transition-all shadow-sm">
                         View Recent Reports
-                    </button>
+                    </Link>
                 </div>
             </section>
 
