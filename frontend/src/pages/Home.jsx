@@ -103,22 +103,20 @@ const Home = () => {
                     <span className="gradient-text reveal-selectable">IMMUTABLE.</span>
                 </h1>
 
-                {/* Aesthetic hint with arrow */}
-                <div className="reveal-hint-wrapper mt-4 mb-8">
-                    <div className="reveal-hint">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
-                            <path d="M12 5v14M5 12l7 7 7-7"/>
-                        </svg>
-                        <span>Click &amp; drag to unredact</span>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
-                            <path d="M12 5v14M5 12l7 7 7-7"/>
+                {/* Aesthetic hint with arrow — only visible in light mode where the bug appears */}
+                <div className="reveal-hint-wrapper mt-4 mb-8 dark:hidden">
+                    <div className="reveal-arrow" aria-hidden="true">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 19V5M5 12l7-7 7 7"/>
                         </svg>
                     </div>
-                    {/* Curved arrow pointing up at the black box */}
-                    <div className="reveal-arrow" aria-hidden="true">
-                        <svg width="32" height="32" viewBox="0 0 40 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M20 44 C 8 38, 4 20, 20 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" fill="none" strokeDasharray="3 3"/>
-                            <path d="M14 6 L20 8 L18 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                    <div className="reveal-hint">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                            <path d="M12 19V5M5 12l7-7 7 7"/>
+                        </svg>
+                        <span>Select the text to unredact</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                            <path d="M12 19V5M5 12l7-7 7 7"/>
                         </svg>
                     </div>
                 </div>

@@ -102,8 +102,6 @@ html.dark .reveal-hint {
 .reveal-arrow {
   color: #a1a1aa;
   opacity: 0.6;
-  transform: rotate(180deg); /* arrow now points UP toward the box */
-  margin-top: -2px;
 }
 
 /* ── Skeleton shimmer ── */
