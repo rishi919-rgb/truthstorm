@@ -281,10 +281,21 @@ html:not(.dark) .reveal-curtain {
   background: linear-gradient(135deg, #18181b 0%, #27272a 50%, #18181b 100%);
 }
 
+/* Light mode hover — explicit override needed due to equal specificity */
+html:not(.dark) .reveal-word-wrapper:hover .reveal-curtain {
+  transform: scaleY(0);
+  opacity: 0;
+}
+
 /* Mobile: tap to reveal using focus */
 @media (hover: none) {
   .reveal-word-wrapper:active .reveal-curtain,
   .reveal-word-wrapper:focus-within .reveal-curtain {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+  html:not(.dark) .reveal-word-wrapper:active .reveal-curtain,
+  html:not(.dark) .reveal-word-wrapper:focus-within .reveal-curtain {
     transform: scaleY(0);
     opacity: 0;
   }
