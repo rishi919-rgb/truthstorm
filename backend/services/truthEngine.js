@@ -17,56 +17,47 @@ const runTruthEngine = async (caption = '', sourceUrl = '', imageData = null) =>
         const hasImage = imageData && imageData.base64 && imageData.mimeType;
 
         const prompt = `
-      You are the "TruthStorm AI Engine", an expert fact-checker and visual analyst journalist.
+      You are the "TruthStorm AI Engine", an expert investigative fact-checker and visual analyst.
       
       CRITICAL CONTEXT:
       - Today's exact date is: ${currentDate}
       - Trust this date completely. Your training data cutoff does not override this.
       
       IMPORTANT RULES:
-      - For time-sensitive claims (sports results, elections, records, recent events) where the claim is AMBIGUOUS about which specific year or event it refers to, score them as 50-60 (Uncertain) and explain the ambiguity.
-      - Do NOT guess or hallucinate specific facts about recent events you are unsure about. Express uncertainty instead.
-      - If a claim could be true historically but is ambiguous about "when", say it is Uncertain and explain why.
-      - Only mark something as "Likely False" if you are extremely confident it is objectively incorrect.
+      - For time-sensitive claims where the year or event is AMBIGUOUS, score them 50-60 (Uncertain).
+      - Do NOT hallucinate specific facts about recent events you are unsure about.
+      - Only mark "Likely False" if you are extremely confident it is objectively incorrect.
       ${hasImage ? `
-      - An IMAGE has been provided. Carefully examine it first. Describe what you see in the image.
-      - Cross-reference what is visible in the image against the caption/claim provided.
-      - If the image clearly contradicts the claim, lower the score significantly.
-      - If the image clearly supports the claim with visible evidence, raise the score.
-      - Look for signs of manipulation, inconsistent lighting, out-of-context usage, or AI generation artifacts.
+      - An IMAGE has been provided. Carefully examine it first.
+      - Cross-reference what is visible in the image against the caption/claim.
+      - If the image contradicts the claim, lower the score significantly.
+      - If it supports the claim, raise the score.
+      - Look for signs of manipulation, inconsistent lighting, AI generation artifacts, or out-of-context usage.
       ` : ''}
       
       Analyze the following:
       Claim/Caption: "${caption || 'None provided'}"
       Source URL: "${sourceUrl || 'None provided'}"
-      ${hasImage ? 'An image has been attached for visual analysis. Analyze it carefully.' : 'No image was provided.'}
+      ${hasImage ? 'An image has been attached for visual analysis.' : 'No image provided.'}
       
-      Return ONLY a strict JSON object with no markdown formatting or backticks. The JSON must have these exact keys:
+      Return ONLY a strict JSON object — no markdown, no backticks. Use these EXACT keys:
       {
-        "credibilityScore": (number from 0 to 100),
-        "verdict": (string, exactly one of: "Likely True", "Uncertain", "Likely False"),
-        "report": (string, a 3-4 sentence detailed explanation with emojis for readability. If an image was provided, mention what you observed in it.),
-        "keyFindings": (array of 3-5 short strings, each one is a concise single-sentence finding that explains a specific reason for the score. Examples: "Claim contains exaggerated language.", "No verified sources detected.", "Image context does not match the stated claim.", "Emotionally charged phrasing typical of misinformation.", "Domain has a high trust rating.")
+        "credibilityScore": (integer 0-100, the confidence this claim is TRUE),
+        "verdict": (exactly one of: "Likely True", "Uncertain", "Likely False"),
+        "confidenceLabel": (short label, e.g. "High Confidence", "Moderate Confidence", "Low Confidence", "Very Low Confidence", "Context Uncertain"),
+        "structuredReport": {
+          "observation": (1-2 sentences: What do you directly observe in the text/image? Be factual and specific.),
+          "inconsistency": (1-2 sentences: What is suspicious, wrong, or mismatched? If nothing suspicious, say 'No major inconsistencies detected.'),
+          "conclusion": (1 sentence: What does this analysis conclude overall?)
+        },
+        "keyFindings": (array of exactly 3-5 short strings, each a single concise finding. Examples: "Claim uses emotionally charged language.", "No trusted sources found to verify the claim.", "Image metadata is inconsistent with stated date.", "Source domain has a high credibility score.", "Cultural context is misrepresented.")
       }
     `;
 
-        // Build contents with optional inline image part
+        // Build contents
         let contents;
         if (hasImage) {
-            contents = [
-                {
-                    role: 'user',
-                    parts: [
-                        { text: prompt },
-                        {
-                            inlineData: {
-                                mimeType: imageData.mimeType,
-                                data: imageData.base64,
-                            }
-                        }
-                    ]
-                }
-            ];
+            contents = [{ role: 'user', parts: [{ text: prompt }, { inlineData: { mimeType: imageData.mimeType, data: imageData.base64 } }] }];
         } else {
             contents = prompt;
         }
@@ -74,28 +65,37 @@ const runTruthEngine = async (caption = '', sourceUrl = '', imageData = null) =>
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents,
-            config: {
-                responseMimeType: "application/json",
-            }
+            config: { responseMimeType: "application/json" }
         });
 
-        const responseText = response.text;
-        const parsedData = JSON.parse(responseText);
+        const parsedData = JSON.parse(response.text);
 
         return {
             credibilityScore: parsedData.credibilityScore,
             verdict: parsedData.verdict,
-            report: parsedData.report,
+            confidenceLabel: parsedData.confidenceLabel || '',
+            report: [
+                parsedData.structuredReport?.observation,
+                parsedData.structuredReport?.inconsistency,
+                parsedData.structuredReport?.conclusion,
+            ].filter(Boolean).join(' '), // combined paragraph for backwards-compat
+            structuredReport: parsedData.structuredReport || {},
             keyFindings: Array.isArray(parsedData.keyFindings) ? parsedData.keyFindings : [],
         };
 
     } catch (error) {
-        console.error('Truth Engine (Gemini API) Error:', error);
+        console.error('Truth Engine Error:', error);
         return {
             credibilityScore: 50,
             verdict: 'Uncertain',
-            report: '⚠️ Investigation Error: The AI engine encountered an issue while processing this request. Please try again later.',
-            keyFindings: ['Engine encountered an error during analysis.'],
+            confidenceLabel: 'Analysis Failed',
+            report: '⚠️ The AI engine encountered an issue. Please try again.',
+            structuredReport: {
+                observation: 'Unable to analyze the provided content.',
+                inconsistency: 'Engine error prevented full analysis.',
+                conclusion: 'Please resubmit this investigation.',
+            },
+            keyFindings: ['Engine error during analysis.'],
         };
     }
 };

@@ -37,7 +37,7 @@ export const createInvestigation = async (req, res) => {
         }
 
         // Run the Truth Engine to analyze the content (async Gemini API call)
-        const { credibilityScore, verdict, report } = await runTruthEngine(caption, sourceUrl, finalImageData);
+        const { credibilityScore, verdict, report, keyFindings, structuredReport, confidenceLabel } = await runTruthEngine(caption, sourceUrl, finalImageData);
 
         const investigation = await Investigation.create({
             user: req.user._id,
@@ -49,6 +49,8 @@ export const createInvestigation = async (req, res) => {
             verdict,
             report,
             keyFindings: keyFindings || [],
+            structuredReport: structuredReport || {},
+            confidenceLabel: confidenceLabel || '',
             imageBase64: finalImageBase64 ? `data:${finalImageData?.mimeType || 'image/jpeg'};base64,${finalImageBase64}` : null,
         });
 

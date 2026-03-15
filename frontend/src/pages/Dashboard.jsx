@@ -139,11 +139,70 @@ const InvestigationCard = ({ inv, onDelete }) => {
                         </div>
                     )}
 
-                    {/* Full AI report */}
-                    <div>
-                        <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">Full Analysis</p>
-                        <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">{inv.report}</p>
-                    </div>
+                    {/* ── Structured Analysis Report ── */}
+                    {inv.structuredReport && Object.keys(inv.structuredReport).length > 0 ? (
+                        <div className="rounded-2xl border border-zinc-200 dark:border-white/[0.06] overflow-hidden">
+                            {/* Header row */}
+                            <div className="px-5 py-3 bg-zinc-50 dark:bg-white/[0.02] border-b border-zinc-200 dark:border-white/[0.06] flex items-center gap-2">
+                                <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">Analysis Summary</span>
+                            </div>
+
+                            {/* Observation */}
+                            {inv.structuredReport.observation && (
+                                <div className="flex gap-0 border-b border-zinc-200 dark:border-white/[0.04]">
+                                    <div className="w-1 shrink-0 bg-blue-500/60" />
+                                    <div className="px-5 py-4">
+                                        <p className="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest mb-1">Observation</p>
+                                        <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">{inv.structuredReport.observation}</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Inconsistency */}
+                            {inv.structuredReport.inconsistency && (
+                                <div className="flex gap-0 border-b border-zinc-200 dark:border-white/[0.04]">
+                                    <div className="w-1 shrink-0 bg-amber-500/60" />
+                                    <div className="px-5 py-4">
+                                        <p className="text-[10px] font-bold text-amber-500 dark:text-amber-400 uppercase tracking-widest mb-1">Inconsistency</p>
+                                        <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">{inv.structuredReport.inconsistency}</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Conclusion */}
+                            {inv.structuredReport.conclusion && (
+                                <div className="flex gap-0 border-b border-zinc-200 dark:border-white/[0.04]">
+                                    <div className="w-1 shrink-0 bg-indigo-500/60" />
+                                    <div className="px-5 py-4">
+                                        <p className="text-[10px] font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-widest mb-1">Conclusion</p>
+                                        <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">{inv.structuredReport.conclusion}</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Verdict + Confidence row */}
+                            <div className="px-5 py-3 bg-zinc-50/80 dark:bg-white/[0.02] flex flex-wrap items-center gap-4">
+                                <div>
+                                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Verdict</p>
+                                    <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100 mt-0.5">
+                                        {inv.confidenceLabel || inv.verdict}
+                                    </p>
+                                </div>
+                                <div className="border-l border-zinc-200 dark:border-white/10 pl-4">
+                                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Confidence</p>
+                                    <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100 mt-0.5">
+                                        {inv.credibilityScore}%
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        /* Fallback for older investigations without structuredReport */
+                        <div>
+                            <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">Full Analysis</p>
+                            <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">{inv.report}</p>
+                        </div>
+                    )}
 
                     {/* Links + Actions */}
                     <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-zinc-200 dark:border-white/5">
