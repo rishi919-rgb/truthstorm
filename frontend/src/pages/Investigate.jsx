@@ -90,15 +90,15 @@ const Investigate = () => {
     const labelClass = "block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-2";
 
     return (
-        <div className="w-full max-w-2xl mx-auto pt-24 pb-16 px-4 relative">
+        <div className="w-full max-w-2xl mx-auto pt-16 md:pt-24 pb-16 px-4 relative">
             
             {/* Ambient Background Glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-indigo-500/10 blur-[100px] rounded-[100%] pointer-events-none -z-10 hidden dark:block" />
 
             {/* Header */}
-            <div className="mb-10 text-center flex flex-col items-center">
-                <Logo className="w-14 h-14 drop-shadow-lg mb-6 hover:scale-105 transition-transform" />
-                <h2 className="text-4xl font-bold text-zinc-900 dark:text-white mb-3 tracking-tight" style={{fontFamily: 'Outfit, sans-serif'}}>
+            <div className="mb-8 md:mb-10 text-center flex flex-col items-center">
+                <Logo className="w-12 h-12 md:w-14 md:h-14 drop-shadow-lg mb-6 hover:scale-105 transition-transform" />
+                <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-white mb-3 tracking-tight" style={{fontFamily: 'Outfit, sans-serif'}}>
                     New Investigation
                 </h2>
                 <p className="text-zinc-500 dark:text-zinc-400 text-sm max-w-md mx-auto">
@@ -106,7 +106,7 @@ const Investigate = () => {
                 </p>
             </div>
 
-            <div className="bento-card p-8 md:p-10 shadow-2xl dark:shadow-none">
+            <div className="bento-card p-5 sm:p-8 md:p-10 shadow-2xl dark:shadow-none">
                 {error && (
                     <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-sm font-medium">
                         {error}
