@@ -83,7 +83,6 @@ const LoggedInSection = () => {
 
 const Home = () => {
     const { isAuthenticated } = useAuth();
-    const [wordRevealed, setWordRevealed] = useState(false);
 
     return (
         <div className="w-full relative min-h-screen pt-16">
@@ -97,32 +96,32 @@ const Home = () => {
                     <span className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Gemini 2.5 Flash Engine Active</span>
                 </div>
 
-                <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black mb-8 tracking-tight" style={{fontFamily: 'Outfit, sans-serif', lineHeight: '1.15'}}>
+                <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight" style={{fontFamily: 'Outfit, sans-serif', lineHeight: '1.15'}}>
                     <span className="text-zinc-900 dark:text-white">Truth is no longer </span>
                     <br className="hidden sm:block" />
-                    {/* Classified reveal word — state-driven (bypasses CSS specificity fights) */}
-                    <span
-                        className="reveal-word-wrapper"
-                        onMouseEnter={() => setWordRevealed(true)}
-                        onMouseLeave={() => setWordRevealed(false)}
-                        onTouchStart={() => setWordRevealed(v => !v)}
-                        role="button"
-                        tabIndex={0}
-                        aria-label="Reveal hidden word"
-                    >
-                        <span className="gradient-text reveal-word">IMMUTABLE.</span>
-                        <span
-                            className="reveal-curtain"
-                            aria-hidden="true"
-                            style={{
-                                transform: wordRevealed ? 'scaleY(0)' : 'scaleY(1)',
-                                opacity: wordRevealed ? 0 : 1,
-                            }}
-                        >
-                            <span className="reveal-label">CLASSIFIED</span>
-                        </span>
-                    </span>
+                    {/* Redacted word — select it to reveal */}
+                    <span className="gradient-text reveal-selectable">IMMUTABLE.</span>
                 </h1>
+
+                {/* Aesthetic hint with arrow */}
+                <div className="reveal-hint-wrapper mt-4 mb-8">
+                    <div className="reveal-hint">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                            <path d="M12 5v14M5 12l7 7 7-7"/>
+                        </svg>
+                        <span>Click &amp; drag to unredact</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                            <path d="M12 5v14M5 12l7 7 7-7"/>
+                        </svg>
+                    </div>
+                    {/* Curved arrow pointing up at the black box */}
+                    <div className="reveal-arrow" aria-hidden="true">
+                        <svg width="32" height="32" viewBox="0 0 40 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 44 C 8 38, 4 20, 20 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" fill="none" strokeDasharray="3 3"/>
+                            <path d="M14 6 L20 8 L18 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                        </svg>
+                    </div>
+                </div>
 
                 <p className="text-lg md:text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed font-normal">
                     TruthStorm exposes misinformation using advanced multimodal AI. Upload an image, paste a claim, or verify a source in milliseconds.

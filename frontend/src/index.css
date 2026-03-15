@@ -47,6 +47,65 @@ html.dark ::-webkit-scrollbar-thumb {
   background-color: #27272a;
 }
 
+/* ── Premium text selection color ── */
+::selection {
+  background-color: rgba(99, 102, 241, 0.35); /* indigo glow */
+  color: #ffffff;
+}
+html:not(.dark) ::selection {
+  background-color: rgba(99, 102, 241, 0.25);
+  color: #09090b;
+}
+
+/* The gradient text becomes selectable; selection color overrides default blue */
+.reveal-selectable {
+  cursor: text;
+  user-select: text;
+}
+
+/* ── Reveal hint (below the redacted box) ── */
+@keyframes hintBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+}
+
+.reveal-hint-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.reveal-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #71717a;
+  animation: hintBounce 2.4s ease-in-out infinite;
+}
+
+html.dark .reveal-hint {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.reveal-arrow {
+  color: #a1a1aa;
+  opacity: 0.6;
+  transform: rotate(180deg); /* arrow now points UP toward the box */
+  margin-top: -2px;
+}
+
 /* ── Skeleton shimmer ── */
 @keyframes shimmer {
   0% { background-position: -200% 0; }
