@@ -150,9 +150,6 @@ Point your hosting to the `frontend/` directory with:
 | **Root Directory** | `frontend` |
 | **Build Command** | `npm run build` |
 | **Output Directory** | `dist` |
-| **Env Var** | `VITE_API_URL` → your backend URL |
-
-> A `vercel.json` is included for Vercel SPA routing support.
 
 ### Backend (Render / Railway)
 Deploy the `backend/` directory as a Node.js web service and set the same `.env` variables in your provider's dashboard.
