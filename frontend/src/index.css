@@ -211,3 +211,92 @@ html:not(.dark) .btn-premium {
 html:not(.dark) .btn-premium:hover {
   box-shadow: 0 6px 20px rgba(0,0,0,0.15);
 }
+
+/* ── Classified Reveal Interaction ── */
+.reveal-word-wrapper {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  vertical-align: bottom;
+}
+
+.reveal-word {
+  display: inline-block;
+  /* The gradient text is always rendered; curtain sits on top */
+}
+
+.reveal-curtain {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #09090b 0%, #18181b 50%, #09090b 100%);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: top center;
+  transform: scaleY(1);
+  transition: transform 0.55s cubic-bezier(0.76, 0, 0.24, 1), opacity 0.55s ease;
+  overflow: hidden;
+}
+
+/* Subtle scanline texture overlay */
+.reveal-curtain::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(255,255,255,0.02) 3px,
+    rgba(255,255,255,0.02) 4px
+  );
+  pointer-events: none;
+}
+
+.reveal-label {
+  font-family: 'Courier New', monospace;
+  font-size: 0.25em;
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  user-select: none;
+  transition: opacity 0.3s ease;
+  white-space: nowrap;
+}
+
+/* Lift the curtain on hover */
+.reveal-word-wrapper:hover .reveal-curtain {
+  transform: scaleY(0);
+  opacity: 0;
+}
+
+.reveal-word-wrapper:hover .reveal-label {
+  opacity: 0;
+}
+
+/* Light mode curtain */
+html:not(.dark) .reveal-curtain {
+  background: linear-gradient(135deg, #18181b 0%, #27272a 50%, #18181b 100%);
+}
+
+/* Light mode hover — explicit override needed due to equal specificity */
+html:not(.dark) .reveal-word-wrapper:hover .reveal-curtain {
+  transform: scaleY(0);
+  opacity: 0;
+}
+
+/* Mobile: tap to reveal using focus */
+@media (hover: none) {
+  .reveal-word-wrapper:active .reveal-curtain,
+  .reveal-word-wrapper:focus-within .reveal-curtain {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+  html:not(.dark) .reveal-word-wrapper:active .reveal-curtain,
+  html:not(.dark) .reveal-word-wrapper:focus-within .reveal-curtain {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+}
