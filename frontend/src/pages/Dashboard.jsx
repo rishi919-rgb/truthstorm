@@ -20,6 +20,28 @@ const InvestigationCard = ({ inv, onDelete }) => {
         return <span className={`${base} bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400`}>{verdict}</span>;
     };
 
+    const CredibilityMeter = ({ score, verdict }) => {
+        const isNeg = verdict === 'Likely False';
+        const isPos = verdict === 'Likely True';
+        const barColor = isNeg ? 'bg-red-500' : isPos ? 'bg-emerald-500' : 'bg-amber-400';
+        const glowColor = isNeg ? 'shadow-[0_0_10px_rgba(239,68,68,0.5)]' : isPos ? 'shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'shadow-[0_0_10px_rgba(251,191,36,0.5)]';
+
+        return (
+            <div className="w-full mt-4">
+                <div className="flex justify-between items-center mb-1.5">
+                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Credibility Meter</span>
+                    <span className={`text-xs font-bold tabular-nums ${isNeg ? 'text-red-500' : isPos ? 'text-emerald-500' : 'text-amber-500'}`}>{score}%</span>
+                </div>
+                <div className="h-2 w-full bg-zinc-100 dark:bg-white/5 rounded-full overflow-hidden border border-zinc-200 dark:border-white/10">
+                    <div 
+                        className={`h-full ${barColor} ${glowColor} transition-all duration-1000 ease-out`}
+                        style={{ width: `${score}%` }}
+                    />
+                </div>
+            </div>
+        );
+    };
+
     const style = getScoreStyle(inv.credibilityScore);
     // If an image URL was provided but no base64 (older records), use the imageUrl directly
     const displayImage = inv.imageBase64 || (inv.imageUrl && inv.imageUrl.startsWith('http') ? inv.imageUrl : null);
@@ -139,11 +161,84 @@ const InvestigationCard = ({ inv, onDelete }) => {
                         </div>
                     )}
 
-                    {/* Full AI report */}
-                    <div>
-                        <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">Full Analysis</p>
-                        <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">{inv.report}</p>
-                    </div>
+                    {/* ── Structured Analysis Report ── */}
+                    {inv.structuredReport && Object.keys(inv.structuredReport).length > 0 ? (
+                        <div className="rounded-2xl border border-zinc-200 dark:border-white/[0.06] overflow-hidden">
+                            {/* Header row */}
+                            <div className="px-5 py-3 bg-zinc-50 dark:bg-white/[0.02] border-b border-zinc-200 dark:border-white/[0.06] flex items-center gap-2">
+                                <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">Analysis Summary</span>
+                            </div>
+
+                            {/* Observation */}
+                            {inv.structuredReport.observation && (
+                                <div className="flex gap-0 border-b border-zinc-200 dark:border-white/[0.04]">
+                                    <div className="w-1 shrink-0 bg-blue-500/60" />
+                                    <div className="px-5 py-4">
+                                        <p className="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest mb-1">Observation</p>
+                                        <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">{inv.structuredReport.observation}</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Inconsistency */}
+                            {inv.structuredReport.inconsistency && (
+                                <div className="flex gap-0 border-b border-zinc-200 dark:border-white/[0.04]">
+                                    <div className="w-1 shrink-0 bg-amber-500/60" />
+                                    <div className="px-5 py-4">
+                                        <p className="text-[10px] font-bold text-amber-500 dark:text-amber-400 uppercase tracking-widest mb-1">Inconsistency</p>
+                                        <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">{inv.structuredReport.inconsistency}</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Conclusion */}
+                            {inv.structuredReport.conclusion && (
+                                <div className="flex gap-0 border-b border-zinc-200 dark:border-white/[0.04]">
+                                    <div className="w-1 shrink-0 bg-indigo-500/60" />
+                                    <div className="px-5 py-4">
+                                        <p className="text-[10px] font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-widest mb-1">Conclusion</p>
+                                        <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">{inv.structuredReport.conclusion}</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Verdict + Confidence row */}
+                            <div className="px-5 py-3 bg-zinc-50/80 dark:bg-white/[0.02] flex flex-wrap items-center gap-4">
+                                <div>
+                                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Verdict</p>
+                                    <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100 mt-0.5">
+                                        {inv.confidenceLabel || inv.verdict}
+                                    </p>
+                                </div>
+                                <div className="border-l border-zinc-200 dark:border-white/10 pl-4">
+                                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Confidence</p>
+                                    <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100 mt-0.5">
+                                        {inv.credibilityScore}%
+                                    </p>
+                                </div>
+                                {inv.analysisTime > 0 && (
+                                    <div className="border-l border-zinc-200 dark:border-white/10 pl-4">
+                                        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Analysis Time</p>
+                                        <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100 mt-0.5">
+                                            {inv.analysisTime.toFixed(1)}s
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="px-5 pb-4 bg-zinc-50/80 dark:bg-white/[0.02]">
+                                <CredibilityMeter score={inv.credibilityScore} verdict={inv.verdict} />
+                            </div>
+                        </div>
+                    ) : (
+                        /* Fallback for older investigations without structuredReport */
+                        <div className="space-y-4">
+                            <div>
+                                <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">Full Analysis</p>
+                                <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">{inv.report}</p>
+                            </div>
+                            <CredibilityMeter score={inv.credibilityScore} verdict={inv.verdict} />
+                        </div>
+                    )}
 
                     {/* Links + Actions */}
                     <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-zinc-200 dark:border-white/5">

@@ -1,18 +1,36 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiCreateInvestigation } from '../services/api';
 import Logo from '../components/Logo';
 
 const MAX_IMAGE_SIZE_MB = 4;
 
+const LOADING_STEPS = [
+    { icon: '🔍', text: 'Analyzing claim...' },
+    { icon: '🌐', text: 'Checking sources...' },
+    { icon: '🧠', text: 'Running AI verification...' },
+    { icon: '🔎', text: 'Scanning for bias markers...' },
+    { icon: '📊', text: 'Generating report...' },
+];
+
 const Investigate = () => {
     const [formData, setFormData] = useState({ caption: '', sourceUrl: '', imageUrl: '' });
-    const [imageFile, setImageFile] = useState(null);   // { preview, base64, mimeType, name }
+    const [imageFile, setImageFile] = useState(null);
     const [dragging, setDragging] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [loadingStep, setLoadingStep] = useState(0);
     const [error, setError] = useState('');
     const fileInputRef = useRef();
     const navigate = useNavigate();
+
+    // Cycle through loading steps while AI processes
+    useEffect(() => {
+        if (!loading) { setLoadingStep(0); return; }
+        const interval = setInterval(() => {
+            setLoadingStep(prev => (prev + 1) % LOADING_STEPS.length);
+        }, 1800);
+        return () => clearInterval(interval);
+    }, [loading]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -194,12 +212,16 @@ const Investigate = () => {
                             Cancel
                         </button>
                         <button type="submit" disabled={loading}
-                            className="btn-premium px-8 py-3 rounded-full font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                            className="btn-premium px-8 py-3 rounded-full font-semibold text-sm disabled:opacity-90 disabled:cursor-not-allowed flex items-center gap-2 min-w-[200px] justify-center">
                             {loading ? (
-                                <><span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                                Working...</>
+                                <>
+                                    <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin shrink-0" />
+                                    <span className="transition-all duration-500">
+                                        {LOADING_STEPS[loadingStep].icon} {LOADING_STEPS[loadingStep].text}
+                                    </span>
+                                </>
                             ) : (
-                                <>{imageFile ? 'Scan Evidence' : 'Run Investigation'}</>
+                                <>{imageFile || formData.imageUrl ? 'Scan Evidence' : 'Run Investigation'}</>
                             )}
                         </button>
                     </div>

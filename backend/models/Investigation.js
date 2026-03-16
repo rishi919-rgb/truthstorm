@@ -43,9 +43,21 @@ const investigationSchema = new mongoose.Schema(
             type: [String],
             default: [],
         },
+        confidenceLabel: {
+            type: String,
+            default: '',
+        },
+        structuredReport: {
+            type: Object, // { observation, inconsistency, conclusion }
+            default: {},
+        },
         imageBase64: {
             type: String,
             default: null, // Keep the base64 string to render later in dashboard if uploaded directly
+        },
+        analysisTime: {
+            type: Number,
+            default: 0,
         },
     },
     { timestamps: true }
