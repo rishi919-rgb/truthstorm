@@ -48,6 +48,7 @@ export const createInvestigation = async (req, res) => {
             credibilityScore,
             verdict,
             report,
+            keyFindings: keyFindings || [],
             imageBase64: finalImageBase64 ? `data:${finalImageData?.mimeType || 'image/jpeg'};base64,${finalImageBase64}` : null,
         });
 

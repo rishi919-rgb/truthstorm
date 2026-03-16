@@ -45,7 +45,8 @@ const runTruthEngine = async (caption = '', sourceUrl = '', imageData = null) =>
       {
         "credibilityScore": (number from 0 to 100),
         "verdict": (string, exactly one of: "Likely True", "Uncertain", "Likely False"),
-        "report": (string, a 3-4 sentence detailed explanation with emojis for readability. If an image was provided, mention what you observed in it.)
+        "report": (string, a 3-4 sentence detailed explanation with emojis for readability. If an image was provided, mention what you observed in it.),
+        "keyFindings": (array of 3-5 short strings, each one is a concise single-sentence finding that explains a specific reason for the score. Examples: "Claim contains exaggerated language.", "No verified sources detected.", "Image context does not match the stated claim.", "Emotionally charged phrasing typical of misinformation.", "Domain has a high trust rating.")
       }
     `;
 
@@ -84,7 +85,8 @@ const runTruthEngine = async (caption = '', sourceUrl = '', imageData = null) =>
         return {
             credibilityScore: parsedData.credibilityScore,
             verdict: parsedData.verdict,
-            report: parsedData.report
+            report: parsedData.report,
+            keyFindings: Array.isArray(parsedData.keyFindings) ? parsedData.keyFindings : [],
         };
 
     } catch (error) {
@@ -92,7 +94,8 @@ const runTruthEngine = async (caption = '', sourceUrl = '', imageData = null) =>
         return {
             credibilityScore: 50,
             verdict: 'Uncertain',
-            report: '⚠️ Investigation Error: The AI engine encountered an issue while processing this request. Please try again later.'
+            report: '⚠️ Investigation Error: The AI engine encountered an issue while processing this request. Please try again later.',
+            keyFindings: ['Engine encountered an error during analysis.'],
         };
     }
 };

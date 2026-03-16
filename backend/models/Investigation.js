@@ -39,6 +39,10 @@ const investigationSchema = new mongoose.Schema(
             type: String,
             default: '',
         },
+        keyFindings: {
+            type: [String],
+            default: [],
+        },
         imageBase64: {
             type: String,
             default: null, // Keep the base64 string to render later in dashboard if uploaded directly

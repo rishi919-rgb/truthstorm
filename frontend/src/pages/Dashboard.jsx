@@ -92,9 +92,56 @@ const InvestigationCard = ({ inv, onDelete }) => {
                         </div>
                     )}
 
+                    {/* ── Key Findings Panel ── */}
+                    {inv.keyFindings && inv.keyFindings.length > 0 && (
+                        <div className="rounded-2xl border border-zinc-200 dark:border-white/[0.06] bg-zinc-50/50 dark:bg-white/[0.02] overflow-hidden">
+                            {/* Header */}
+                            <div className="px-5 py-3 border-b border-zinc-200 dark:border-white/[0.06] flex items-center gap-2.5">
+                                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                                <p className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">
+                                    Key Findings
+                                </p>
+                                <span className="ml-auto text-xs font-semibold tabular-nums text-zinc-400 dark:text-zinc-500">
+                                    {inv.keyFindings.length} signal{inv.keyFindings.length !== 1 ? 's' : ''}
+                                </span>
+                            </div>
+                            {/* Findings list */}
+                            <ul className="divide-y divide-zinc-200 dark:divide-white/[0.04]">
+                                {inv.keyFindings.map((finding, i) => {
+                                    // Heuristic coloring — red for negative, green for positive, zinc for neutral
+                                    const lower = finding.toLowerCase();
+                                    const isNeg = /false|manipulat|exaggerat|mismatch|no (trusted|verified|credible|source)|mislead|fabricat|suspicious|inconsistent|unverified|no evidence|contradict/i.test(lower);
+                                    const isPos = /trusted|verified|credible|high trust|supports|reliable|accurate|evidence confirm/i.test(lower);
+                                    const dotColor = isNeg
+                                        ? 'bg-red-500'
+                                        : isPos
+                                        ? 'bg-emerald-500'
+                                        : 'bg-amber-400';
+                                    const numColor = isNeg
+                                        ? 'text-red-500 dark:text-red-400 bg-red-500/10 border-red-500/20'
+                                        : isPos
+                                        ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
+                                        : 'text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/20';
+
+                                    return (
+                                        <li key={i} className="px-5 py-3 flex items-start gap-3 group/item">
+                                            <div className={`mt-1 w-1.5 h-1.5 rounded-full shrink-0 ${dotColor}`} />
+                                            <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-snug flex-1">
+                                                {finding}
+                                            </p>
+                                            <span className={`text-[10px] font-bold border rounded px-1.5 py-0.5 shrink-0 tabular-nums opacity-60 ${numColor}`}>
+                                                #{i + 1}
+                                            </span>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        </div>
+                    )}
+
                     {/* Full AI report */}
                     <div>
-                        <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">AI Analysis</p>
+                        <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-3">Full Analysis</p>
                         <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">{inv.report}</p>
                     </div>
 
