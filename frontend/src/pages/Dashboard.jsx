@@ -1,198 +1,188 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import { apiGetInvestigations, apiDeleteInvestigation } from '../services/api';
-
-const PAGE_SIZE = 5;
-
-const getScoreStyle = (score) => {
-    if (score >= 70) return { ring: 'score-true', badge: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30', text: 'text-emerald-400' };
-    if (score >= 45) return { ring: 'score-uncertain', badge: 'bg-amber-500/15 text-amber-400 border-amber-500/30', text: 'text-amber-400' };
-    return { ring: 'score-false', badge: 'bg-red-500/15 text-red-400 border-red-500/30', text: 'text-red-400' };
-};
+import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
-    const { user } = useAuth();
-    const [allInvestigations, setAllInvestigations] = useState([]);
+    const [investigations, setInvestigations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [searchQuery, setSearchQuery] = useState('');
-    const [debouncedQuery, setDebouncedQuery] = useState('');
-    const [filterVerdict, setFilterVerdict] = useState('All');
-    const [currentPage, setCurrentPage] = useState(1);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [verdictFilter, setVerdictFilter] = useState('All');
 
     useEffect(() => {
-        const fetchInvestigations = async () => {
-            try {
-                const data = await apiGetInvestigations();
-                setAllInvestigations(data);
-            } catch (err) {
-                setError(err.message || 'Failed to load investigations.');
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchInvestigations();
     }, []);
 
-    useEffect(() => {
-        const handler = setTimeout(() => { setDebouncedQuery(searchQuery); setCurrentPage(1); }, 400);
-        return () => clearTimeout(handler);
-    }, [searchQuery]);
-
-    useEffect(() => { setCurrentPage(1); }, [filterVerdict]);
-
-    const handleDelete = async (id) => {
+    const fetchInvestigations = async () => {
         try {
-            await apiDeleteInvestigation(id);
-            setAllInvestigations(prev => prev.filter(inv => inv._id !== id));
+            const data = await apiGetInvestigations();
+            setInvestigations(data);
         } catch (err) {
-            alert(err.message || 'Failed to delete investigation');
+            setError(err.message || 'Failed to load investigations');
+        } finally {
+            setLoading(false);
         }
     };
 
-    const filtered = allInvestigations.filter((inv) => {
-        const matchSearch = debouncedQuery === '' || (inv.caption || '').toLowerCase().includes(debouncedQuery.toLowerCase());
-        const matchFilter = filterVerdict === 'All' || inv.verdict === filterVerdict;
-        return matchSearch && matchFilter;
+    const handleDelete = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this report?')) return;
+        try {
+            await apiDeleteInvestigation(id);
+            setInvestigations(prev => prev.filter(inv => inv._id !== id));
+        } catch (err) {
+            alert(err.message || 'Failed to delete');
+        }
+    };
+
+    const filteredInvestigations = investigations.filter(inv => {
+        const matchesSearch = inv.caption?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              inv.sourceUrl?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesVerdict = verdictFilter === 'All' || inv.verdict === verdictFilter;
+        return matchesSearch && matchesVerdict;
     });
 
-    const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
-    const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+    const getScoreStyle = (score) => {
+        if (score === undefined || score === null) return { color: 'text-zinc-500', glow: '' };
+        if (score >= 70) return { color: 'text-emerald-500 dark:text-emerald-400', glow: 'score-true' };
+        if (score >= 40) return { color: 'text-amber-500 dark:text-amber-400', glow: 'score-uncertain' };
+        return { color: 'text-red-500 dark:text-red-400', glow: 'score-false' };
+    };
+
+    const getVerdictBadge = (verdict) => {
+        if (!verdict) return null;
+        const base = "px-2.5 py-1 text-xs font-semibold rounded-md border";
+        if (verdict === 'Likely True') return <span className={`${base} bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400`}>{verdict}</span>;
+        if (verdict === 'Uncertain') return <span className={`${base} bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400`}>{verdict}</span>;
+        return <span className={`${base} bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400`}>{verdict}</span>;
+    };
+
+    if (loading) {
+        return (
+            <div className="w-full max-w-5xl mx-auto px-4 pt-24 pb-16">
+                <div className="flex justify-between items-center mb-10">
+                    <div className="skeleton w-64 h-10"></div>
+                </div>
+                <div className="space-y-4">
+                    {[1, 2, 3].map(n => <div key={n} className="skeleton w-full h-32 rounded-2xl"></div>)}
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div className="w-full max-w-5xl mx-auto mt-8 mb-16 space-y-6 px-4">
-            {/* Header */}
-            <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="w-full max-w-5xl mx-auto px-4 pt-24 pb-16">
+            
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
                 <div>
-                    <h1 className="text-3xl font-black text-slate-900 dark:text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                        Investigation Dashboard
-                    </h1>
-                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        Welcome back, <span className="font-bold text-indigo-500 dark:text-indigo-400">{user?.name}</span>!
-                    </p>
+                    <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-2 tracking-tight" style={{fontFamily: 'Outfit, sans-serif'}}>Investigations</h1>
+                    <p className="text-zinc-500 dark:text-zinc-400 text-sm">Your private history of verified claims.</p>
                 </div>
-                <Link to="/investigate"
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-px transition-all">
-                    ⚡ New Investigation
+                <Link to="/investigate" className="btn-premium px-6 py-2.5 rounded-full font-medium text-sm inline-flex items-center gap-2 self-start md:self-auto">
+                    <span>+</span> New Scan
                 </Link>
             </div>
 
-            {/* Search & Filter */}
-            <div className="flex flex-col sm:flex-row gap-3">
-                <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search investigations..."
-                    className="flex-1 px-4 py-3 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                />
-                <select
-                    value={filterVerdict}
-                    onChange={(e) => setFilterVerdict(e.target.value)}
-                    className="px-4 py-3 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-                >
-                    <option value="All">All Verdicts</option>
-                    <option value="Likely True">Likely True</option>
-                    <option value="Uncertain">Uncertain</option>
-                    <option value="Likely False">Likely False</option>
-                </select>
-            </div>
-
-            {/* Error */}
             {error && (
-                <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm">
+                <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm">
                     {error}
                 </div>
             )}
 
-            {/* Content */}
-            {loading ? (
-                <div className="space-y-4">
-                    {[1, 2, 3].map(i => <div key={i} className="h-36 skeleton rounded-2xl" />)}
+            {/* Controls */}
+            {investigations.length > 0 && (
+                <div className="flex flex-col sm:flex-row gap-3 mb-8">
+                    <input type="text" placeholder="Search investigations..." 
+                           className="input-premium px-4 py-2.5 rounded-lg text-sm w-full sm:max-w-xs"
+                           value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                    
+                    <select className="input-premium px-4 py-2.5 rounded-lg text-sm appearance-none"
+                            value={verdictFilter} onChange={(e) => setVerdictFilter(e.target.value)}>
+                        <option value="All">All Verdicts</option>
+                        <option value="Likely True">Likely True</option>
+                        <option value="Uncertain">Uncertain</option>
+                        <option value="Likely False">Likely False</option>
+                    </select>
                 </div>
-            ) : paginated.length === 0 ? (
-                <div className="text-center py-24 rounded-2xl bg-white dark:bg-white/3 border border-slate-100 dark:border-white/5">
-                    <p className="text-5xl mb-4">🔎</p>
-                    <h3 className="text-xl font-bold text-slate-700 dark:text-slate-200 mb-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                        {allInvestigations.length === 0 ? 'No investigations yet' : 'No results found'}
-                    </h3>
-                    <p className="text-slate-500 dark:text-slate-400 mb-6 text-sm">
-                        {allInvestigations.length === 0 ? 'Submit your first viral content to investigate!' : 'Try adjusting your search or filter.'}
-                    </p>
-                    {allInvestigations.length === 0 && (
-                        <Link to="/investigate" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 transition-all shadow-lg shadow-indigo-500/25">
-                            ⚡ Start Investigating
-                        </Link>
-                    )}
+            )}
+
+            {/* List */}
+            {investigations.length === 0 ? (
+                <div className="bento-card p-12 text-center border-dashed border-2 bg-transparent dark:bg-transparent">
+                    <div className="text-4xl mb-4 opacity-50">🔍</div>
+                    <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-2" style={{fontFamily: 'Outfit, sans-serif'}}>No investigations yet</h3>
+                    <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-6 max-w-md mx-auto">Upload an image or paste a viral claim to generate your first AI fact-check report.</p>
+                    <Link to="/investigate" className="btn-premium px-6 py-2.5 rounded-full font-medium text-sm inline-flex">
+                        Start your first scan
+                    </Link>
+                </div>
+            ) : filteredInvestigations.length === 0 ? (
+                <div className="py-12 text-center text-zinc-500 dark:text-zinc-400 text-sm">
+                    No matching investigations found.
                 </div>
             ) : (
-                <div className="space-y-4">
-                    {paginated.map((inv) => {
+                <div className="grid gap-4">
+                    {filteredInvestigations.map((inv) => {
                         const style = getScoreStyle(inv.credibilityScore);
+                        
                         return (
-                            <div key={inv._id} className="rounded-2xl bg-white dark:bg-white/3 border border-slate-100 dark:border-white/8 p-6 card-hover">
-                                {/* Top row */}
-                                <div className="flex items-start justify-between gap-4">
+                            <div key={inv._id} className="bento-card p-6 card-hover group relative">
+                                <div className="flex flex-col md:flex-row gap-6">
+                                    
+                                    {/* Left: Content */}
                                     <div className="flex-1 min-w-0">
-                                        <p className="font-semibold text-slate-800 dark:text-slate-100 line-clamp-2 mb-1">
-                                            {inv.caption || inv.sourceUrl || 'No caption provided'}
-                                        </p>
-                                        <p className="text-xs text-slate-400 dark:text-slate-500">
-                                            {new Date(inv.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}
-                                        </p>
-                                    </div>
-                                    {inv.status === 'completed' && (
-                                        <div className={`flex-shrink-0 w-16 h-16 rounded-2xl flex flex-col items-center justify-center border ${style.badge} ${style.ring}`}>
-                                            <span className={`text-2xl font-black leading-none ${style.text}`}>{inv.credibilityScore}</span>
-                                            <span className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">/ 100</span>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Bottom row */}
-                                {inv.status === 'completed' && (
-                                    <div className="mt-4 pt-4 border-t border-slate-100 dark:border-white/5">
-                                        <div className="flex items-center justify-between mb-3">
-                                            <span className={`text-xs font-bold px-3 py-1 rounded-full border ${style.badge}`}>
-                                                {inv.verdict}
+                                        <div className="flex items-center gap-3 mb-3">
+                                            {getVerdictBadge(inv.verdict)}
+                                            <span className="text-xs text-zinc-400">
+                                                {new Date(inv.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                                             </span>
-                                            <button
-                                                onClick={() => handleDelete(inv._id)}
-                                                className="text-xs text-slate-400 hover:text-red-500 transition-colors font-medium"
-                                            >
-                                                Delete
-                                            </button>
                                         </div>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 whitespace-pre-line leading-relaxed">
+                                        
+                                        <h3 className="text-base font-semibold text-zinc-900 dark:text-white mb-2 truncate" title={inv.caption || inv.sourceUrl}>
+                                            {inv.caption || inv.sourceUrl || "Untitled Investigation"}
+                                        </h3>
+                                        
+                                        <div className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed overflow-hidden" 
+                                             style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                                             {inv.report}
-                                        </p>
+                                        </div>
+                                        
+                                        {(inv.imageUrl || inv.sourceUrl) && (
+                                            <div className="mt-4 flex gap-3 text-xs">
+                                                {inv.imageUrl && <span className="text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded">Has Image Attached</span>}
+                                                {inv.sourceUrl && <a href={inv.sourceUrl} target="_blank" rel="noreferrer" className="text-indigo-500 hover:underline inline-flex items-center gap-1">Source Link ↗</a>}
+                                            </div>
+                                        )}
                                     </div>
-                                )}
+
+                                    {/* Right: Score & Actions */}
+                                    <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-start gap-4 shrink-0 border-t md:border-t-0 md:border-l border-zinc-200 dark:border-white/5 pt-4 md:pt-0 md:pl-6">
+                                        
+                                        {inv.status === 'completed' && inv.credibilityScore !== undefined ? (
+                                            <div className={`flex items-center justify-center w-14 h-14 rounded-full border border-zinc-200 dark:border-white/10 shrink-0 bg-white/50 dark:bg-white/5 ${style.glow}`}>
+                                                <span className={`text-xl font-bold ${style.color}`} style={{fontFamily: 'Outfit, sans-serif'}}>{inv.credibilityScore}</span>
+                                            </div>
+                                        ) : (
+                                            <div className="w-14 h-14 rounded-full border border-dashed border-zinc-300 dark:border-zinc-700 flex items-center justify-center">
+                                                <span className="text-zinc-400 text-xs text-center leading-tight">No<br/>Score</span>
+                                            </div>
+                                        )}
+
+                                        <button onClick={() => handleDelete(inv._id)}
+                                            className="text-xs font-medium text-zinc-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 hidden md:block mt-auto pb-1">
+                                            Delete
+                                        </button>
+                                        <button onClick={() => handleDelete(inv._id)}
+                                            className="text-xs font-medium text-zinc-500 hover:text-red-500 transition-colors md:hidden">
+                                            Delete
+                                        </button>
+                                    </div>
+
+                                </div>
                             </div>
                         );
                     })}
                 </div>
             )}
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-2 pt-2">
-                    <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}
-                        className="px-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-                        ← Previous
-                    </button>
-                    <span className="text-sm text-slate-400 px-3">Page {currentPage} of {totalPages}</span>
-                    <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}
-                        className="px-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-                        Next →
-                    </button>
-                </div>
-            )}
-
-            <p className="text-xs text-center text-slate-400 dark:text-slate-500">
-                Showing {paginated.length} of {filtered.length} investigations
-            </p>
         </div>
     );
 };

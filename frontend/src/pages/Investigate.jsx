@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiCreateInvestigation } from '../services/api';
+import Logo from '../components/Logo';
 
 const MAX_IMAGE_SIZE_MB = 4;
 
@@ -32,7 +33,6 @@ const Investigate = () => {
         const reader = new FileReader();
         reader.onload = (ev) => {
             const dataUrl = ev.target.result;
-            // dataUrl = "data:image/jpeg;base64,<base64data>"
             const base64 = dataUrl.split(',')[1];
             setImageFile({ preview: dataUrl, base64, mimeType: file.type, name: file.name });
         };
@@ -58,7 +58,6 @@ const Investigate = () => {
             await apiCreateInvestigation({
                 caption: formData.caption,
                 sourceUrl: formData.sourceUrl,
-                // Send imageData as base64 object — NOT a URL
                 imageData: imageFile ? { base64: imageFile.base64, mimeType: imageFile.mimeType } : null,
             });
             navigate('/dashboard');
@@ -69,65 +68,68 @@ const Investigate = () => {
         }
     };
 
-    const inputClass = "w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all";
-    const labelClass = "block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2";
+    const labelClass = "block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-2";
 
     return (
-        <div className="w-full max-w-2xl mx-auto mt-8 mb-16 px-4">
+        <div className="w-full max-w-2xl mx-auto pt-24 pb-16 px-4 relative">
+            
+            {/* Ambient Background Glow */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-indigo-500/10 blur-[100px] rounded-[100%] pointer-events-none -z-10 hidden dark:block" />
+
             {/* Header */}
-            <div className="mb-8 text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 shadow-xl shadow-indigo-500/30 mb-4 text-3xl">
-                    ⚡
-                </div>
-                <h2 className="text-3xl font-black text-slate-900 dark:text-white" style={{fontFamily: 'Outfit, sans-serif'}}>
+            <div className="mb-10 text-center flex flex-col items-center">
+                <Logo className="w-14 h-14 drop-shadow-lg mb-6 hover:scale-105 transition-transform" />
+                <h2 className="text-4xl font-bold text-zinc-900 dark:text-white mb-3 tracking-tight" style={{fontFamily: 'Outfit, sans-serif'}}>
                     New Investigation
                 </h2>
-                <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm">
-                    Submit text, a source, or an image — AI will analyze and fact-check it.
+                <p className="text-zinc-500 dark:text-zinc-400 text-sm max-w-md mx-auto">
+                    Submit text, a source, or an image. The multimodal AI will analyze and fact-check it instantly.
                 </p>
             </div>
 
-            <div className="rounded-2xl bg-white dark:bg-white/3 border border-slate-100 dark:border-white/8 p-8 shadow-xl dark:shadow-none">
+            <div className="bento-card p-8 md:p-10 shadow-2xl dark:shadow-none">
                 {error && (
-                    <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm">
+                    <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-sm font-medium">
                         {error}
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-8">
                     {/* Caption */}
                     <div>
                         <label className={labelClass} htmlFor="caption">
-                            Caption / Claim Text
+                            Claim / Text <span className="text-zinc-400 font-normal ml-1">(Optional)</span>
                         </label>
                         <textarea
                             id="caption" name="caption" rows={3}
                             value={formData.caption} onChange={handleChange}
-                            placeholder="Paste the viral claim, caption, or text you want to investigate..."
-                            className={`${inputClass} resize-none`}
+                            placeholder="Paste the viral claim or text you want to investigate..."
+                            className="input-premium w-full px-4 py-3 rounded-xl resize-none text-sm leading-relaxed"
                         />
                     </div>
 
                     {/* Image Upload */}
                     <div>
                         <label className={labelClass}>
-                            Upload Image <span className="text-slate-400 font-normal">(optional — AI will visually analyze it)</span>
+                            Visual Evidence <span className="text-zinc-400 font-normal ml-1">(Optional)</span>
                         </label>
 
                         {imageFile ? (
                             /* Preview */
-                            <div className="relative rounded-xl overflow-hidden border border-indigo-500/30 bg-indigo-500/5">
-                                <img src={imageFile.preview} alt="Preview" className="w-full max-h-64 object-contain" />
-                                <div className="absolute top-2 right-2 flex gap-2">
+                            <div className="relative rounded-2xl overflow-hidden border border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-white/[0.02]">
+                                <img src={imageFile.preview} alt="Preview" className="w-full max-h-72 object-contain bg-black/5 dark:bg-black/20" />
+                                <div className="absolute top-3 right-3">
                                     <button type="button" onClick={() => setImageFile(null)}
-                                        className="px-3 py-1.5 bg-red-500/90 text-white text-xs font-bold rounded-lg hover:bg-red-600 transition-colors">
+                                        className="px-3 py-1.5 bg-black/50 backdrop-blur-md text-white text-xs font-medium rounded-lg hover:bg-black/70 transition-colors border border-white/10">
                                         ✕ Remove
                                     </button>
                                 </div>
-                                <div className="p-3 text-xs text-indigo-400 flex items-center gap-2">
-                                    <span>📷</span>
-                                    <span className="font-medium">{imageFile.name}</span>
-                                    <span className="ml-auto text-slate-400">Gemini will visually analyze this image</span>
+                                <div className="p-4 border-t border-zinc-200 dark:border-white/5 flex items-center justify-between text-xs">
+                                    <div className="flex items-center gap-2 text-zinc-900 dark:text-zinc-300 font-medium">
+                                        <span>📷</span>
+                                        <span className="truncate max-w-[200px]">{imageFile.name}</span>
+                                    </div>
+                                    <span className="text-indigo-500 dark:text-indigo-400 font-medium">Multimodal attached</span>
                                 </div>
                             </div>
                         ) : (
@@ -137,23 +139,29 @@ const Investigate = () => {
                                 onDragLeave={() => setDragging(false)}
                                 onDrop={handleDrop}
                                 onClick={() => fileInputRef.current?.click()}
-                                className={`relative cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition-all ${
+                                className={`relative cursor-pointer rounded-2xl border flex flex-col items-center justify-center p-12 text-center transition-all duration-300 ${
                                     dragging
-                                        ? 'border-indigo-500 bg-indigo-500/10'
-                                        : 'border-slate-200 dark:border-white/10 hover:border-indigo-400 dark:hover:border-indigo-500/60 hover:bg-indigo-500/5'
+                                        ? 'border-indigo-500 bg-indigo-500/5'
+                                        : 'border-dashed border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-500 hover:bg-zinc-50 dark:hover:bg-white/[0.02]'
                                 }`}
                             >
                                 <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileInput} className="hidden" />
-                                <div className="text-4xl mb-3">{dragging ? '📥' : '🖼️'}</div>
-                                <p className="font-semibold text-slate-700 dark:text-slate-300 text-sm">
-                                    {dragging ? 'Drop to analyze' : 'Click or drag an image here'}
+                                <div className={`text-4xl mb-4 transition-transform duration-300 ${dragging ? '-translate-y-2 scale-110' : ''}`}>
+                                    {dragging ? '📥' : '🖼️'}
+                                </div>
+                                <h3 className="font-semibold text-zinc-900 dark:text-white mb-1">
+                                    {dragging ? 'Drop to analyze' : 'Upload Screenshot'}
+                                </h3>
+                                <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-4">
+                                    Drag and drop or click to browse
                                 </p>
-                                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
-                                    JPG, PNG, WEBP, GIF — max {MAX_IMAGE_SIZE_MB}MB
-                                </p>
-                                <p className="text-xs text-indigo-500 dark:text-indigo-400 mt-2 font-medium">
-                                    ✨ Gemini AI will scan, read, and fact-check the image
-                                </p>
+                                <div className="flex items-center gap-4 text-xs font-semibold text-zinc-400 uppercase tracking-widest">
+                                    <span>JPG</span>
+                                    <span className="w-1 h-1 rounded-full bg-zinc-300 dark:bg-zinc-700"></span>
+                                    <span>PNG</span>
+                                    <span className="w-1 h-1 rounded-full bg-zinc-300 dark:bg-zinc-700"></span>
+                                    <span>WEBP</span>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -161,34 +169,30 @@ const Investigate = () => {
                     {/* Source URL */}
                     <div>
                         <label className={labelClass} htmlFor="sourceUrl">
-                            Source URL <span className="text-slate-400 font-normal">(optional)</span>
+                            Source Reference <span className="text-zinc-400 font-normal ml-1">(Optional)</span>
                         </label>
                         <input id="sourceUrl" name="sourceUrl" type="url" value={formData.sourceUrl} onChange={handleChange}
-                            placeholder="https://social-media.com/post/12345" className={inputClass} />
+                            placeholder="https://news-site.com/article/123" className="input-premium w-full px-4 py-3 rounded-xl text-sm" />
                     </div>
 
                     {/* Submit */}
-                    <div className="flex items-center gap-4 pt-2">
-                        <button type="submit" disabled={loading}
-                            className="flex-1 py-3 px-4 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 disabled:opacity-60 disabled:cursor-wait transition-all shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-px flex items-center justify-center gap-2">
-                            {loading ? (
-                                <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                {imageFile ? 'Analyzing image with AI...' : 'Analyzing with AI...'}</>
-                            ) : (
-                                <>{imageFile ? '🔬 Analyze Image' : '⚡ Investigate Now'}</>
-                            )}
-                        </button>
+                    <div className="pt-4 flex items-center justify-end gap-3">
                         <button type="button" onClick={() => navigate('/dashboard')}
-                            className="px-6 py-3 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 font-medium rounded-xl transition-colors">
+                            className="px-6 py-3 text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors">
                             Cancel
+                        </button>
+                        <button type="submit" disabled={loading}
+                            className="btn-premium px-8 py-3 rounded-full font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                            {loading ? (
+                                <><span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                Working...</>
+                            ) : (
+                                <>{imageFile ? 'Scan Evidence' : 'Run Investigation'}</>
+                            )}
                         </button>
                     </div>
                 </form>
             </div>
-
-            <p className="text-xs text-center text-slate-400 dark:text-slate-500 mt-4">
-                💡 Upload a screenshot of a WhatsApp message or news article for best results.
-            </p>
         </div>
     );
 };

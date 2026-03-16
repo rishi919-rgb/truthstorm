@@ -1,15 +1,15 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Logo from '../components/Logo';
 import { useEffect, useState } from 'react';
 import { apiGetInvestigations } from '../services/api';
 
-// Quick tips carousel for logged-in users
 const TIPS = [
-  "💡 Add a source URL for dramatically more accurate results.",
+  "💡 Include a source URL for dramatically more accurate results.",
   "🔍 Try pasting full WhatsApp forwards to fact-check them instantly.",
-  "📰 Credibility score above 75 means the claim is likely trustworthy.",
+  "📰 A score above 75 means the claim is likely trustworthy.",
   "🚨 Scores below 40 indicate the claim contains signs of misinformation.",
-  "🌐 Reuters, BBC, AP News links get the highest source trust scores.",
+  "🌐 Known trustworthy domains automatically boost the baseline trust score.",
 ];
 
 const LoggedInSection = () => {
@@ -30,50 +30,51 @@ const LoggedInSection = () => {
     }, []);
 
     return (
-        <section className="py-12 px-4">
+        <section className="py-12 md:py-24 px-4 border-t border-zinc-200 dark:border-white/5 bg-zinc-50/50 dark:bg-transparent">
             <div className="max-w-5xl mx-auto">
-                <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-6" style={{fontFamily: 'Outfit, sans-serif'}}>
-                    Your Investigation Summary
-                </h2>
-
-                {/* Personal stats */}
-                <div className="grid grid-cols-3 gap-4 mb-6">
-                    {[
-                        { value: stats.total, label: 'Total Investigations', color: 'text-indigo-400', bg: 'from-indigo-500/15 to-transparent', ring: 'ring-indigo-500/20' },
-                        { value: stats.trueCount, label: 'Likely True', color: 'text-emerald-400', bg: 'from-emerald-500/15 to-transparent', ring: 'ring-emerald-500/20' },
-                        { value: stats.falseCount, label: 'Likely False', color: 'text-red-400', bg: 'from-red-500/15 to-transparent', ring: 'ring-red-500/20' },
-                    ].map(stat => (
-                        <div key={stat.label} className={`p-5 rounded-2xl bg-gradient-to-b ${stat.bg} border border-white/10 ring-1 ${stat.ring} text-center`}>
-                            <div className={`text-4xl font-black mb-1 ${stat.color}`} style={{fontFamily: 'Outfit, sans-serif'}}>{stat.value}</div>
-                            <div className="text-xs text-slate-500 dark:text-slate-400">{stat.label}</div>
-                        </div>
-                    ))}
+                <div className="flex flex-col md:flex-row items-baseline justify-between mb-8 gap-4">
+                    <h2 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white" style={{fontFamily: 'Outfit, sans-serif'}}>
+                        Your Command Center
+                    </h2>
+                    <div className="flex gap-3">
+                        <Link to="/investigate" className="btn-premium px-6 py-2.5 rounded-full font-medium text-sm inline-flex items-center gap-2">
+                            <span>⚡</span> New Scan
+                        </Link>
+                        <Link to="/dashboard" className="px-6 py-2.5 rounded-full font-medium text-sm text-zinc-600 dark:text-zinc-300 bg-zinc-200/50 hover:bg-zinc-200 dark:bg-zinc-800/50 dark:hover:bg-zinc-800 transition-colors">
+                            View All
+                        </Link>
+                    </div>
                 </div>
 
-                {/* Quick actions */}
-                <div className="grid sm:grid-cols-2 gap-4 mb-6">
-                    <Link to="/investigate"
-                        className="flex items-center gap-4 p-5 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-700 text-white shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all card-hover">
-                        <div className="text-4xl">⚡</div>
-                        <div>
-                            <div className="font-bold text-lg" style={{fontFamily: 'Outfit, sans-serif'}}>New Investigation</div>
-                            <div className="text-indigo-200 text-sm">Analyze a viral claim or news story</div>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                    {/* Main Stats Bento */}
+                    <div className="md:col-span-2 bento-card p-8 flex flex-col justify-center relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-8 text-zinc-300 dark:text-zinc-800 transition-transform group-hover:scale-110 duration-500">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2v20m10-10H2" /></svg>
                         </div>
-                    </Link>
-                    <Link to="/dashboard"
-                        className="flex items-center gap-4 p-5 rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-white hover:bg-slate-50 dark:hover:bg-white/10 hover:-translate-y-0.5 transition-all card-hover">
-                        <div className="text-4xl">📊</div>
-                        <div>
-                            <div className="font-bold text-lg" style={{fontFamily: 'Outfit, sans-serif'}}>My Dashboard</div>
-                            <div className="text-slate-500 dark:text-slate-400 text-sm">View all past investigations &amp; reports</div>
-                        </div>
-                    </Link>
+                        <h3 className="text-sm font-semibold text-zinc-500 tracking-wider uppercase mb-1">Total Scans</h3>
+                        <div className="text-6xl font-black text-zinc-900 dark:text-white" style={{fontFamily: 'Outfit, sans-serif'}}>{stats.total}</div>
+                    </div>
+
+                    <div className="md:col-span-1 bento-card p-6 flex flex-col justify-between">
+                        <h3 className="text-xs font-semibold text-emerald-600 dark:text-emerald-500 tracking-wider uppercase mb-4">Verified True</h3>
+                        <div className="text-4xl font-bold text-zinc-900 dark:text-white">{stats.trueCount}</div>
+                    </div>
+
+                    <div className="md:col-span-1 bento-card p-6 flex flex-col justify-between">
+                        <h3 className="text-xs font-semibold text-red-600 dark:text-red-500 tracking-wider uppercase mb-4">Debunked</h3>
+                        <div className="text-4xl font-bold text-zinc-900 dark:text-white">{stats.falseCount}</div>
+                    </div>
                 </div>
 
                 {/* Rotating pro tips */}
-                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm font-medium transition-all">
-                    <span className="text-amber-300 font-bold mr-1">Pro Tip:</span>
-                    {TIPS[tipIndex]}
+                <div className="bento-card p-4 flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center shrink-0">
+                        <span className="text-indigo-600 dark:text-indigo-400 text-sm">💡</span>
+                    </div>
+                    <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                        {TIPS[tipIndex]}
+                    </p>
                 </div>
             </div>
         </section>
@@ -84,88 +85,95 @@ const Home = () => {
     const { isAuthenticated } = useAuth();
 
     return (
-        <div className="w-full">
+        <div className="w-full relative min-h-screen pt-16">
+            <div className="premium-gradient-bg" />
+            
             {/* Hero */}
-            <section className="relative min-h-[90vh] flex flex-col items-center justify-center text-center px-4 overflow-hidden">
-                {/* Animated background blobs */}
-                <div className="absolute inset-0 overflow-hidden -z-10">
-                    <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-indigo-600/20 dark:bg-indigo-600/25 blur-3xl animate-blob" />
-                    <div className="absolute top-1/3 right-1/4 w-80 h-80 rounded-full bg-violet-600/20 dark:bg-violet-600/25 blur-3xl animate-blob animation-delay-2000" />
-                    <div className="absolute bottom-1/4 left-1/2 w-72 h-72 rounded-full bg-cyan-500/15 dark:bg-cyan-500/20 blur-3xl animate-blob animation-delay-4000" />
+            <section className="relative px-4 pt-20 pb-16 md:pt-32 md:pb-24 lg:pt-40 lg:pb-32 max-w-5xl mx-auto flex flex-col items-center text-center">
+                
+                <div className="mb-8 inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-200 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-md shadow-sm">
+                    <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+                    <span className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Gemini 2.5 Flash Engine Active</span>
                 </div>
 
-                {/* Badge */}
-                <div className="mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 text-sm font-semibold">
-                    <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
-                    Powered by Google Gemini 2.5 Flash
-                </div>
-
-                <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-6 leading-tight" style={{fontFamily: 'Outfit, sans-serif'}}>
-                    <span className="text-slate-900 dark:text-white">Uncover the truth</span>
-                    <br />
-                    <span className="gradient-text">behind viral content</span>
+                <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight tracking-tight" style={{fontFamily: 'Outfit, sans-serif'}}>
+                    <span className="text-zinc-900 dark:text-white">Truth is no longer </span>
+                    <br className="hidden sm:block" />
+                    <span className="gradient-text pb-2 inline-block">subjective.</span>
                 </h1>
 
-                <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-                    TruthStorm AI uses advanced LLM-powered intelligence to instantly analyze viral claims, detect misinformation, and generate detailed credibility reports.
+                <p className="text-lg md:text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed font-normal">
+                    TruthStorm exposes misinformation using advanced multimodal AI. Upload an image, paste a claim, or verify a source in milliseconds.
                 </p>
 
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Link to="/investigate"
-                        className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 shadow-xl shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all hover:-translate-y-0.5 text-base">
-                        ⚡ Start Investigating
+                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                    <Link to="/investigate" className="btn-premium px-8 py-4 rounded-full font-semibold text-base inline-flex items-center justify-center gap-2">
+                        Start Investigating
                     </Link>
                     {isAuthenticated ? (
-                        <Link to="/dashboard"
-                            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 transition-all hover:-translate-y-0.5 text-base shadow-sm">
-                            📊 My Dashboard
+                        <Link to="/dashboard" className="px-8 py-4 rounded-full font-semibold text-base text-zinc-700 dark:text-zinc-200 bg-zinc-100 dark:bg-zinc-800/50 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors inline-flex items-center justify-center">
+                            Open Dashboard
                         </Link>
                     ) : (
-                        <Link to="/signup"
-                            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 transition-all hover:-translate-y-0.5 text-base shadow-sm">
-                            🚀 Get Started Free
+                        <Link to="/signup" className="px-8 py-4 rounded-full font-semibold text-base text-zinc-700 dark:text-zinc-200 bg-zinc-100 dark:bg-zinc-800/50 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors inline-flex items-center justify-center border border-transparent dark:border-white/5">
+                            Create Free Account
                         </Link>
                     )}
                 </div>
             </section>
 
-            {/* Stats */}
-            <section className="py-16 px-4">
-                <div className="max-w-4xl mx-auto grid grid-cols-3 gap-6 text-center">
-                    {[
-                        { value: '1,500+', label: 'Free daily analyses', color: 'text-indigo-400' },
-                        { value: '<2s', label: 'Average response time', color: 'text-violet-400' },
-                        { value: '100', label: 'Point scoring system', color: 'text-cyan-400' },
-                    ].map((stat) => (
-                        <div key={stat.label} className="p-6 rounded-2xl bg-white dark:bg-white/3 border border-slate-100 dark:border-white/5">
-                            <div className={`text-3xl font-black mb-1 ${stat.color}`} style={{fontFamily: 'Outfit, sans-serif'}}>{stat.value}</div>
-                            <div className="text-sm text-slate-500 dark:text-slate-400">{stat.label}</div>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* Features */}
-            <section className="py-16 px-4">
-                <div className="max-w-6xl mx-auto">
-                    <h2 className="text-3xl md:text-4xl font-black text-center text-slate-900 dark:text-white mb-4" style={{fontFamily: 'Outfit, sans-serif'}}>
-                        Enterprise-grade <span className="gradient-text">AI analysis</span>
-                    </h2>
-                    <p className="text-center text-slate-500 dark:text-slate-400 mb-12 max-w-xl mx-auto">
-                        Three layers of intelligence working together to verify every claim.
-                    </p>
-                    <div className="grid md:grid-cols-3 gap-6">
-                        {[
-                            { icon: '🔍', title: 'Claim Analysis', desc: 'Gemini reads the entire claim, verifies it against its training data, and applies expert journalistic standards.', accent: 'from-indigo-500/20 to-indigo-500/5', ring: 'ring-indigo-500/20' },
-                            { icon: '🌐', title: 'Source Verification', desc: 'The source URL is evaluated against a database of trusted, biased, and satirical domains for reputation scoring.', accent: 'from-violet-500/20 to-violet-500/5', ring: 'ring-violet-500/20' },
-                            { icon: '📈', title: 'Credibility Scoring', desc: 'Every investigation receives a 0–100 score with a full AI-written breakdown of findings and evidence.', accent: 'from-cyan-500/20 to-cyan-500/5', ring: 'ring-cyan-500/20' },
-                        ].map((feature) => (
-                            <div key={feature.title} className={`relative p-6 rounded-2xl bg-gradient-to-b ${feature.accent} border border-white/10 ring-1 ${feature.ring} card-hover`}>
-                                <div className="text-4xl mb-4">{feature.icon}</div>
-                                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2" style={{fontFamily: 'Outfit, sans-serif'}}>{feature.title}</h3>
-                                <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">{feature.desc}</p>
+            {/* Architecture Bento Grid */}
+            <section className="px-4 pb-20 md:pb-32">
+                <div className="max-w-5xl mx-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        
+                        <div className="md:col-span-2 bento-card p-8 md:p-12 relative overflow-hidden group">
+                            <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-indigo-500/20 blur-3xl rounded-full" />
+                            <h3 className="text-2xl font-bold text-zinc-900 dark:text-white mb-3 tracking-tight" style={{fontFamily: 'Outfit, sans-serif'}}>Multimodal Analysis</h3>
+                            <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-md">
+                                Don't just verify text. Upload screenshots, WhatsApp forwards, or memes. The vision model sees the image, reads the text, and checks it against global data.
+                            </p>
+                            <div className="mt-8 pt-8 border-t border-zinc-200 dark:border-white/10 flex items-center gap-4 text-sm font-medium text-zinc-500">
+                                <span>Images</span>
+                                <span className="w-1 h-1 rounded-full bg-zinc-300 dark:bg-zinc-700"></span>
+                                <span>Text Claims</span>
+                                <span className="w-1 h-1 rounded-full bg-zinc-300 dark:bg-zinc-700"></span>
+                                <span>News URLs</span>
                             </div>
-                        ))}
+                        </div>
+
+                        <div className="md:col-span-1 bento-card p-8 flex flex-col justify-between relative overflow-hidden">
+                            <div className="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/10 blur-3xl rounded-full" />
+                            <div>
+                                <h3 className="text-2xl font-bold text-zinc-900 dark:text-white mb-3 tracking-tight" style={{fontFamily: 'Outfit, sans-serif'}}>Real-time</h3>
+                                <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed text-sm">
+                                    Time-aware AI that knows today's date, preventing hallucinations about recent events.
+                                </p>
+                            </div>
+                            <div className="mt-8 text-4xl">⏱️</div>
+                        </div>
+
+                        <div className="md:col-span-1 bento-card p-8 flex flex-col justify-between">
+                            <div>
+                                <h3 className="text-2xl font-bold text-zinc-900 dark:text-white mb-3 tracking-tight" style={{fontFamily: 'Outfit, sans-serif'}}>Scoring System</h3>
+                                <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed text-sm">
+                                    0 to 100 credibility index, removing ambiguity from fact-checking.
+                                </p>
+                            </div>
+                            <div className="mt-8 flex gap-2">
+                                <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                                <div className="w-3 h-3 rounded-full bg-amber-500"></div>
+                                <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
+                            </div>
+                        </div>
+
+                        <div className="md:col-span-2 bento-card p-8 md:p-12 relative overflow-hidden">
+                            <h3 className="text-2xl font-bold text-zinc-900 dark:text-white mb-3 tracking-tight" style={{fontFamily: 'Outfit, sans-serif'}}>Enterprise Security</h3>
+                            <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-md">
+                                Every investigation is privately scoped to your account. We don't train on your personal uploads. Open authentication architecture.
+                            </p>
+                        </div>
+
                     </div>
                 </div>
             </section>
@@ -174,15 +182,14 @@ const Home = () => {
             {isAuthenticated ? (
                 <LoggedInSection />
             ) : (
-                <section className="py-20 px-4">
-                    <div className="max-w-2xl mx-auto text-center rounded-3xl p-12 bg-gradient-to-br from-indigo-600 to-violet-700 shadow-2xl shadow-indigo-500/30 relative overflow-hidden">
-                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(255,255,255,0.1),transparent)] pointer-events-none" />
-                        <h2 className="text-3xl md:text-4xl font-black text-white mb-4" style={{fontFamily: 'Outfit, sans-serif'}}>
-                            Stop believing rumors.<br />Start investigating.
+                <section className="py-24 px-4 border-t border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-zinc-900/20">
+                    <div className="max-w-2xl mx-auto text-center">
+                        <h2 className="text-4xl font-bold text-zinc-900 dark:text-white mb-6 tracking-tight" style={{fontFamily: 'Outfit, sans-serif'}}>
+                            Stop guessing. Know for sure.
                         </h2>
-                        <p className="text-indigo-200 mb-8">Join thousands using AI to cut through the noise. Free forever.</p>
-                        <Link to="/signup" className="inline-flex items-center gap-2 px-8 py-4 bg-white text-indigo-700 font-bold rounded-xl hover:bg-indigo-50 transition-all shadow-lg hover:-translate-y-0.5">
-                            Get Started Free →
+                        <p className="text-zinc-600 dark:text-zinc-400 mb-10 text-lg">Create a free account to access the TruthStorm engine instantly.</p>
+                        <Link to="/signup" className="btn-premium px-8 py-4 rounded-full font-semibold text-base inline-flex">
+                            Get Started Free
                         </Link>
                     </div>
                 </section>
