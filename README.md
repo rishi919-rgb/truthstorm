@@ -1,304 +1,93 @@
-🚀 TruthStorm AI – Viral Content Investigation Platform
+# 🌪️ TruthStorm AI — Multimodal Viral Content Investigation
 
-Welcome to TruthStorm AI, a full stack web application designed to help users investigate viral content and detect misleading information.
+[![Gemini AI](https://img.shields.io/badge/AI-Gemini%201.5%20Flash-blueviolet?style=for-the-badge&logo=google-gemini)](https://deepmind.google/technologies/gemini/)
+[![Vercel Design](https://img.shields.io/badge/Design-Silicon%20Valley%20SaaS-000000?style=for-the-badge)](https://vercel.com/design)
+[![Tech Stack](https://img.shields.io/badge/Stack-MERN-green?style=for-the-badge)](https://www.mongodb.com/mern-stack)
 
-The platform analyzes images, captions, and sources using AI-powered analysis and provides an investigation report showing credibility and original context.
+**TruthStorm AI** is a professional-grade digital forensics and investigation platform designed to dismantle misleading viral narratives. By combining **multimodal AI analysis** with a **Silicon Valley "Bento" aesthetic**, it empowers users to verify claims, images, and sources in seconds.
 
-📌 Problem Statement
+---
 
-In today’s digital world, misinformation spreads extremely fast, especially on social media platforms.
+## ⚡ Key Capabilities
 
-Often, real images are shared with misleading captions or false context, causing confusion and spreading incorrect narratives.
+### 🔍 Multimodal Investigation
+Unlike standard fact-checkers, TruthStorm analyzes the *relationship* between visual evidence and textual claims.
+- **Image Contextualization**: Detects reused images and identifies the original geographical/historical context.
+- **Claim Verification**: Cross-references viral statements against known facts and current events.
+- **Sentiment & Bias Detection**: Identifies emotionally charged or misleading language patterns.
 
-Examples include:
+### 🧠 The Truth Engine
+Powered by **Google Gemini 1.5 Flash**, our engine generates:
+- **Credibility Score (0-100)**: A quantitative measure of information reliability.
+- **Verdict Labels**: Instant classification (Likely True, Misleading, Context Mismatch, etc.).
+- **Structured Findings**: Transparent breakdowns of Observation, Inconsistency, and Conclusion.
 
-Old disaster images shared as recent events
+### 🎨 Premium "SaaS" Experience
+- **Bento-Grid Dashboard**: A data-driven, aesthetic layout for managing all your investigations.
+- **Glassmorphic UI**: Ultra-modern design with dynamic blur effects and OLED-optimized dark mode.
+- **Analysis Time Metrics**: Real-time performance tracking for every AI scan.
 
-Images from one country shared as another location
+---
 
-Misleading headlines attached to real images
+## 🛠 Tech Stack
 
-Currently, most users lack simple tools to verify viral content quickly.
+| Component | Technology |
+| :--- | :--- |
+| **Frontend** | React 19, Tailwind CSS v4 |
+| **Backend** | Node.js, Express |
+| **Database** | MongoDB Atlas |
+| **AI Engine** | Google Gemini (Multimodal Pro) |
+| **Authentication** | JWT + Context API |
 
-TruthStorm AI aims to solve this problem by providing a web-based investigation platform that allows users to analyze viral content and detect potential misinformation.
+---
 
-🎯 Event Objective
+## 🚀 Getting Started
 
-The goal of this project is to build a complete full stack application that:
+### 1. Clone the repository
+```bash
+git clone https://github.com/rishi919-rgb/truthstorm.git
+cd truthstorm
+```
 
-Detects potentially misleading viral content
+### 2. Configure Environment Variables
+Create a `.env` file in the `backend/` directory:
+```env
+MONGO_URI=your_mongodb_uri
+PORT=5000
+JWT_SECRET=your_jwt_secret
+GEMINI_API_KEY=your_google_ai_key
+```
 
-Investigates the origin of images and captions
+### 3. Install Dependencies
+```bash
+# Frontend
+cd frontend && npm install
 
-Generates an AI-based credibility score
+# Backend
+cd ../backend && npm install
+```
 
-Displays results through an intuitive dashboard
+### 4. Run the Platform
+```bash
+# Start backend
+node index.js
 
-Participants must design and implement the solution using modern full stack technologies.
+# Start frontend
+cd ../frontend && npm run dev
+```
 
-🛠 Required Tech Stack
+---
 
-The application will be built using the following technologies.
+## 🎯 Architecture
 
-Frontend
+The system uses a highly responsive **Event-Driven Analysis** flow:
+1. **Evidence Intake**: User submits URL, Context, or Image.
+2. **Contextual Buffering**: Evidence is pre-processed for AI readiness.
+3. **Engine Execution**: Gemini Multimodal analysis cross-references live data.
+4. **Report Rendering**: Results are delivered via a high-fidelity investigative dashboard.
 
-ReactJS
+---
 
-Tailwind CSS
-
-Backend
-
-Node.js
-
-Express.js
-
-Database
-
-MongoDB
-
-🧠 Core System Features
-
-TruthStorm AI includes several investigation modules to analyze viral content.
-
-1️⃣ Image Verification
-
-The system analyzes uploaded images and attempts to determine their original context.
-
-Features include:
-
-Detect reused images
-
-Identify original image sources
-
-Reverse image search integration
-
-2️⃣ Caption & Claim Analysis
-
-The system evaluates captions or headlines attached to viral images.
-
-It performs:
-
-Natural language analysis
-
-Detection of misleading language
-
-Credibility scoring
-
-3️⃣ Viral Threat Radar
-
-TruthStorm AI also monitors suspicious viral content patterns.
-
-This module:
-
-Detects trending misinformation
-
-Flags suspicious viral claims
-
-Highlights potentially misleading content
-
-4️⃣ Investigation Report
-
-After analysis, the system generates a complete investigation report including:
-
-Credibility score
-
-Original image context
-
-Caption analysis results
-
-Final misinformation probability
-
-⚙️ Application Architecture
-
-The application follows a layered architecture:
-
-User Upload
-     ↓
-Frontend Dashboard (React + Tailwind)
-     ↓
-Backend API (Node.js + Express)
-     ↓
-AI Content Analysis
-     ↓
-Truth Engine
-     ↓
-MongoDB Database
-     ↓
-Investigation Dashboard
-📋 Mandatory Full Stack Features
-
-The application will also implement several core full stack features.
-
-1️⃣ Routing & Navigation
-
-Client-side routing using React Router.
-
-Pages include:
-
-Home
-
-Login
-
-Signup
-
-Dashboard
-
-Investigation Results
-
-User Profile
-
-2️⃣ React Hooks Usage
-
-The application demonstrates usage of key React hooks:
-
-useState – manage component state
-
-useEffect – handle API calls and lifecycle events
-
-useRef – DOM references and focus control
-
-useContext – global state sharing
-
-3️⃣ State Management
-
-Global application state will be managed using:
-
-Context API
-
-Used for:
-
-Authentication state
-
-User preferences
-
-Investigation results
-
-4️⃣ Authentication System
-
-Basic authentication functionality includes:
-
-Signup page
-
-Login page
-
-Password validation
-
-LocalStorage session handling
-
-Protected routes for authenticated users
-
-5️⃣ Theme Support
-
-TruthStorm AI will support:
-
-Dark mode
-
-Light mode
-
-Theme toggle option
-
-Persisted theme preference
-
-6️⃣ Search, Filtering & Sorting
-
-Users will be able to:
-
-Search investigation results
-
-Filter by credibility score
-
-Sort by date or relevance
-
-7️⃣ Debouncing
-
-Debouncing will be implemented in search features to prevent excessive API requests while typing.
-
-8️⃣ Pagination
-
-Large datasets will be displayed using pagination.
-
-Examples:
-
-Investigation reports
-
-Viral threat radar results
-
-Pagination will use:
-
-MongoDB limit and skip
-
-Frontend pagination UI
-
-9️⃣ CRUD Operations
-
-The platform will support full CRUD functionality.
-
-Users can:
-
-Create investigation requests
-
-Read investigation reports
-
-Update saved investigations
-
-Delete investigation history
-
-🔟 API Integration
-
-REST APIs will be built using Node.js and Express.
-
-Features include:
-
-structured API endpoints
-
-error handling
-
-loading states
-
-1️⃣1️⃣ Form Handling & Validation
-
-Forms will include:
-
-Input validation
-
-Error handling
-
-User feedback
-
-Controlled React components
-
-1️⃣2️⃣ Responsive UI
-
-The UI will be fully responsive using Tailwind CSS, supporting:
-
-Desktop
-
-Tablet
-
-Mobile devices
-
-1️⃣3️⃣ Error Handling
-
-The system will implement robust error handling.
-
-Examples include:
-
-Backend API error responses
-
-Frontend error display
-
-Try–catch blocks for API calls
-
-🎯 Expected Outcome
-
-The final result will be a fully functional full stack web application capable of:
-
-Investigating viral content
-
-Detecting misleading images and captions
-
-Generating credibility reports
-
-Providing an intuitive investigation dashboard
+Built with ⚡ by **Discrete Syndicates** for the Hackathon.
 
 TruthStorm AI aims to empower users to verify information before sharing it online, helping reduce the spread of misinformation.
