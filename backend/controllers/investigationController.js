@@ -6,18 +6,19 @@ import runTruthEngine from '../services/truthEngine.js';
 // @access  Protected
 export const createInvestigation = async (req, res) => {
     try {
-        const { caption, imageUrl, sourceUrl } = req.body;
+        const { caption, imageUrl, sourceUrl, imageData } = req.body;
 
-        if (!caption && !imageUrl && !sourceUrl) {
-            return res.status(400).json({ message: 'Please provide at least a caption, image URL, or source URL.' });
+        if (!caption && !imageUrl && !sourceUrl && !imageData) {
+            return res.status(400).json({ message: 'Please provide at least a caption, image, or source URL.' });
         }
 
         // Run the Truth Engine to analyze the content (async Gemini API call)
-        const { credibilityScore, verdict, report } = await runTruthEngine(caption, sourceUrl);
+        // imageData is { base64: string, mimeType: string } if a file was uploaded
+        const { credibilityScore, verdict, report } = await runTruthEngine(caption, sourceUrl, imageData || null);
 
         const investigation = await Investigation.create({
             user: req.user._id,
-            caption,
+            caption: caption || (imageData ? '📷 Image Investigation' : ''),
             imageUrl,
             sourceUrl,
             status: 'completed',

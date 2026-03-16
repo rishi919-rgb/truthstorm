@@ -1,11 +1,16 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiCreateInvestigation } from '../services/api';
 
+const MAX_IMAGE_SIZE_MB = 4;
+
 const Investigate = () => {
-    const [formData, setFormData] = useState({ caption: '', imageUrl: '', sourceUrl: '' });
+    const [formData, setFormData] = useState({ caption: '', sourceUrl: '' });
+    const [imageFile, setImageFile] = useState(null);   // { preview, base64, mimeType, name }
+    const [dragging, setDragging] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const fileInputRef = useRef();
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -13,16 +18,49 @@ const Investigate = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const processFile = (file) => {
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+            setError('Please upload an image file (JPG, PNG, WEBP, GIF).');
+            return;
+        }
+        if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
+            setError(`Image must be under ${MAX_IMAGE_SIZE_MB}MB.`);
+            return;
+        }
+        setError('');
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const dataUrl = ev.target.result;
+            // dataUrl = "data:image/jpeg;base64,<base64data>"
+            const base64 = dataUrl.split(',')[1];
+            setImageFile({ preview: dataUrl, base64, mimeType: file.type, name: file.name });
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleFileInput = (e) => processFile(e.target.files[0]);
+    const handleDrop = (e) => {
+        e.preventDefault();
+        setDragging(false);
+        processFile(e.dataTransfer.files[0]);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
-        if (!formData.caption && !formData.imageUrl && !formData.sourceUrl) {
-            setError('Please provide at least a caption, image URL, or source URL to investigate.');
+        if (!formData.caption && !formData.sourceUrl && !imageFile) {
+            setError('Please provide a caption, source URL, or upload an image to investigate.');
             return;
         }
         try {
             setLoading(true);
-            await apiCreateInvestigation(formData);
+            await apiCreateInvestigation({
+                caption: formData.caption,
+                sourceUrl: formData.sourceUrl,
+                // Send imageData as base64 object — NOT a URL
+                imageData: imageFile ? { base64: imageFile.base64, mimeType: imageFile.mimeType } : null,
+            });
             navigate('/dashboard');
         } catch (err) {
             setError(err.message || 'Failed to submit investigation. Please try again.');
@@ -41,11 +79,11 @@ const Investigate = () => {
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 shadow-xl shadow-indigo-500/30 mb-4 text-3xl">
                     ⚡
                 </div>
-                <h2 className="text-3xl font-black text-slate-900 dark:text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                <h2 className="text-3xl font-black text-slate-900 dark:text-white" style={{fontFamily: 'Outfit, sans-serif'}}>
                     New Investigation
                 </h2>
                 <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm">
-                    Submit content to be analyzed by the Gemini 2.5 Flash AI Engine.
+                    Submit text, a source, or an image — AI will analyze and fact-check it.
                 </p>
             </div>
 
@@ -57,29 +95,70 @@ const Investigate = () => {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Caption */}
                     <div>
                         <label className={labelClass} htmlFor="caption">
                             Caption / Claim Text
                         </label>
                         <textarea
-                            id="caption"
-                            name="caption"
-                            rows={4}
-                            value={formData.caption}
-                            onChange={handleChange}
+                            id="caption" name="caption" rows={3}
+                            value={formData.caption} onChange={handleChange}
                             placeholder="Paste the viral claim, caption, or text you want to investigate..."
                             className={`${inputClass} resize-none`}
                         />
                     </div>
 
+                    {/* Image Upload */}
                     <div>
-                        <label className={labelClass} htmlFor="imageUrl">
-                            Image URL <span className="text-slate-400 font-normal">(optional)</span>
+                        <label className={labelClass}>
+                            Upload Image <span className="text-slate-400 font-normal">(optional — AI will visually analyze it)</span>
                         </label>
-                        <input id="imageUrl" name="imageUrl" type="url" value={formData.imageUrl} onChange={handleChange}
-                            placeholder="https://example.com/viral-image.jpg" className={inputClass} />
+
+                        {imageFile ? (
+                            /* Preview */
+                            <div className="relative rounded-xl overflow-hidden border border-indigo-500/30 bg-indigo-500/5">
+                                <img src={imageFile.preview} alt="Preview" className="w-full max-h-64 object-contain" />
+                                <div className="absolute top-2 right-2 flex gap-2">
+                                    <button type="button" onClick={() => setImageFile(null)}
+                                        className="px-3 py-1.5 bg-red-500/90 text-white text-xs font-bold rounded-lg hover:bg-red-600 transition-colors">
+                                        ✕ Remove
+                                    </button>
+                                </div>
+                                <div className="p-3 text-xs text-indigo-400 flex items-center gap-2">
+                                    <span>📷</span>
+                                    <span className="font-medium">{imageFile.name}</span>
+                                    <span className="ml-auto text-slate-400">Gemini will visually analyze this image</span>
+                                </div>
+                            </div>
+                        ) : (
+                            /* Drop zone */
+                            <div
+                                onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+                                onDragLeave={() => setDragging(false)}
+                                onDrop={handleDrop}
+                                onClick={() => fileInputRef.current?.click()}
+                                className={`relative cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition-all ${
+                                    dragging
+                                        ? 'border-indigo-500 bg-indigo-500/10'
+                                        : 'border-slate-200 dark:border-white/10 hover:border-indigo-400 dark:hover:border-indigo-500/60 hover:bg-indigo-500/5'
+                                }`}
+                            >
+                                <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileInput} className="hidden" />
+                                <div className="text-4xl mb-3">{dragging ? '📥' : '🖼️'}</div>
+                                <p className="font-semibold text-slate-700 dark:text-slate-300 text-sm">
+                                    {dragging ? 'Drop to analyze' : 'Click or drag an image here'}
+                                </p>
+                                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                                    JPG, PNG, WEBP, GIF — max {MAX_IMAGE_SIZE_MB}MB
+                                </p>
+                                <p className="text-xs text-indigo-500 dark:text-indigo-400 mt-2 font-medium">
+                                    ✨ Gemini AI will scan, read, and fact-check the image
+                                </p>
+                            </div>
+                        )}
                     </div>
 
+                    {/* Source URL */}
                     <div>
                         <label className={labelClass} htmlFor="sourceUrl">
                             Source URL <span className="text-slate-400 font-normal">(optional)</span>
@@ -88,13 +167,15 @@ const Investigate = () => {
                             placeholder="https://social-media.com/post/12345" className={inputClass} />
                     </div>
 
+                    {/* Submit */}
                     <div className="flex items-center gap-4 pt-2">
                         <button type="submit" disabled={loading}
                             className="flex-1 py-3 px-4 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 disabled:opacity-60 disabled:cursor-wait transition-all shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-px flex items-center justify-center gap-2">
                             {loading ? (
-                                <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Analyzing with AI...</>
+                                <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                {imageFile ? 'Analyzing image with AI...' : 'Analyzing with AI...'}</>
                             ) : (
-                                <> ⚡ Investigate Now</>
+                                <>{imageFile ? '🔬 Analyze Image' : '⚡ Investigate Now'}</>
                             )}
                         </button>
                         <button type="button" onClick={() => navigate('/dashboard')}
@@ -105,9 +186,8 @@ const Investigate = () => {
                 </form>
             </div>
 
-            {/* Tip */}
             <p className="text-xs text-center text-slate-400 dark:text-slate-500 mt-4">
-                💡 For best results, provide both a claim text and a source URL.
+                💡 Upload a screenshot of a WhatsApp message or news article for best results.
             </p>
         </div>
     );
