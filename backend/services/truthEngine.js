@@ -5,19 +5,32 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const runTruthEngine = async (caption = '', sourceUrl = '') => {
     try {
+        const now = new Date();
+        const currentDate = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
         const prompt = `
       You are the "TruthStorm AI Engine", an expert fact-checker and journalist.
+      
+      CRITICAL CONTEXT:
+      - Today's exact date is: ${currentDate}
+      - Trust this date completely. Your training data cutoff does not override this.
+      
+      IMPORTANT RULES:
+      - For time-sensitive claims (sports results, elections, records, recent events) where the claim is AMBIGUOUS about which specific year or event it refers to, score them as 50-60 (Uncertain) and explain the ambiguity.
+      - Do NOT guess or hallucinate specific facts about recent events you are unsure about. Express uncertainty instead.
+      - If a claim could be true historically but is ambiguous about "when", say it is Uncertain and explain why.
+      - Only mark something as "Likely False" if you are extremely confident it is objectively incorrect.
+      
       Analyze the following claim and optional source URL.
       
       Claim/Caption: "${caption || 'None provided'}"
       Source URL: "${sourceUrl || 'None provided'}"
       
-      Determine the credibility of the claim based on recognized facts, logic, and source reputation.
       Return ONLY a strict JSON object with no markdown formatting or backticks. The JSON must have these exact keys:
       {
-        "credibilityScore": (number from 0 to 100, where 0 is completely false/debunked and 100 is perfectly verified/true),
+        "credibilityScore": (number from 0 to 100),
         "verdict": (string, exactly one of: "Likely True", "Uncertain", "Likely False"),
-        "report": (string, a 3-4 sentence detailed explanation of why this score was given, formatted with emojis for readability)
+        "report": (string, a 3-4 sentence detailed explanation with emojis for readability)
       }
     `;
 
