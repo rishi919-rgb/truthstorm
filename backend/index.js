@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import authRoutes from './routes/authRoutes.js';
+import investigationRoutes from './routes/investigationRoutes.js';
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ app.use(cors());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/investigations', investigationRoutes);
 
 // MongoDB Connection
 const connectDB = async () => {
