@@ -1,4 +1,5 @@
 import { createContext, useState, useContext, useEffect } from 'react';
+import { apiLogin, apiSignup } from '../services/api';
 
 const AuthContext = createContext();
 
@@ -19,23 +20,24 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
     }, []);
 
-    const login = (userData) => {
-        // Simulated login for Phase 9
-        const dummyUser = { id: 1, email: userData.email, name: 'Investigator' };
-        setUser(dummyUser);
-        localStorage.setItem('truthstorm_user', JSON.stringify(dummyUser));
+    const login = async (userData) => {
+        const data = await apiLogin(userData);
+        setUser(data.user);
+        localStorage.setItem('truthstorm_user', JSON.stringify(data.user));
+        localStorage.setItem('truthstorm_token', data.token);
     };
 
-    const signup = (userData) => {
-        // Simulated signup for Phase 9
-        const dummyUser = { id: 2, email: userData.email, name: userData.name };
-        setUser(dummyUser);
-        localStorage.setItem('truthstorm_user', JSON.stringify(dummyUser));
+    const signup = async (userData) => {
+        const data = await apiSignup(userData);
+        setUser(data.user);
+        localStorage.setItem('truthstorm_user', JSON.stringify(data.user));
+        localStorage.setItem('truthstorm_token', data.token);
     };
 
     const logout = () => {
         setUser(null);
         localStorage.removeItem('truthstorm_user');
+        localStorage.removeItem('truthstorm_token');
     };
 
     const value = {

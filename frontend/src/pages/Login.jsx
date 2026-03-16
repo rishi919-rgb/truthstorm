@@ -8,6 +8,7 @@ const Login = () => {
         password: ''
     });
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
 
@@ -19,18 +20,24 @@ const Login = () => {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
 
-        // Basic Validation
         if (!formData.email || !formData.password) {
             setError('Please fill in all fields');
             return;
         }
 
-        login(formData);
-        navigate('/dashboard');
+        try {
+            setLoading(true);
+            await login(formData);
+            navigate('/dashboard');
+        } catch (err) {
+            setError(err.message || 'Login failed. Please check your credentials.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -79,9 +86,10 @@ const Login = () => {
 
                 <button
                     type="submit"
-                    className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800"
+                    disabled={loading}
+                    className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold rounded-lg transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800"
                 >
-                    Sign In
+                    {loading ? 'Signing in...' : 'Sign In'}
                 </button>
             </form>
 

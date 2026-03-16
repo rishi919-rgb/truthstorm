@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { apiCreateInvestigation } from '../services/api';
 
 const Investigate = () => {
     const [formData, setFormData] = useState({
@@ -10,7 +10,6 @@ const Investigate = () => {
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const { user } = useAuth();
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -27,13 +26,15 @@ const Investigate = () => {
             return;
         }
 
-        setLoading(true);
-
-        // In Phase 17, this will send data to the backend API
-        setTimeout(() => {
-            setLoading(false);
+        try {
+            setLoading(true);
+            await apiCreateInvestigation(formData);
             navigate('/dashboard');
-        }, 1500);
+        } catch (err) {
+            setError(err.message || 'Failed to submit investigation. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -55,7 +56,6 @@ const Investigate = () => {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Caption / Claim Text */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="caption">
                             Caption / Claim Text
@@ -71,7 +71,6 @@ const Investigate = () => {
                         />
                     </div>
 
-                    {/* Image URL */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="imageUrl">
                             Image URL <span className="text-gray-400 font-normal">(optional)</span>
@@ -87,7 +86,6 @@ const Investigate = () => {
                         />
                     </div>
 
-                    {/* Source URL */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="sourceUrl">
                             Source URL <span className="text-gray-400 font-normal">(optional)</span>
@@ -107,9 +105,9 @@ const Investigate = () => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold rounded-lg transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800"
+                            className="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold rounded-lg transition-colors shadow-sm"
                         >
-                            {loading ? 'Submitting...' : '🔍 Investigate Now'}
+                            {loading ? 'Analyzing...' : '🔍 Investigate Now'}
                         </button>
                         <button
                             type="button"

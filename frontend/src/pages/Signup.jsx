@@ -10,22 +10,19 @@ const Signup = () => {
         confirmPassword: ''
     });
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const { signup } = useAuth();
     const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
 
-        // Basic Validation
         if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
             setError('Please fill in all fields');
             return;
@@ -41,8 +38,15 @@ const Signup = () => {
             return;
         }
 
-        signup(formData);
-        navigate('/dashboard');
+        try {
+            setLoading(true);
+            await signup(formData);
+            navigate('/dashboard');
+        } catch (err) {
+            setError(err.message || 'Signup failed. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -59,71 +63,32 @@ const Signup = () => {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="name">
-                        Full Name
-                    </label>
-                    <input
-                        id="name"
-                        name="name"
-                        type="text"
-                        value={formData.name}
-                        onChange={handleChange}
-                        placeholder="Jane Doe"
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                    />
-                </div>
-
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="email">
-                        Email Address
-                    </label>
-                    <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        placeholder="investigator@truthstorm.ai"
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                    />
-                </div>
-
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="password">
-                        Password
-                    </label>
-                    <input
-                        id="password"
-                        name="password"
-                        type="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        placeholder="••••••••"
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                    />
-                </div>
-
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor="confirmPassword">
-                        Confirm Password
-                    </label>
-                    <input
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        type="password"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        placeholder="••••••••"
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                    />
-                </div>
+                {[
+                    { id: 'name', label: 'Full Name', type: 'text', placeholder: 'Jane Doe' },
+                    { id: 'email', label: 'Email Address', type: 'email', placeholder: 'investigator@truthstorm.ai' },
+                    { id: 'password', label: 'Password', type: 'password', placeholder: '••••••••' },
+                    { id: 'confirmPassword', label: 'Confirm Password', type: 'password', placeholder: '••••••••' },
+                ].map(({ id, label, type, placeholder }) => (
+                    <div key={id}>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" htmlFor={id}>{label}</label>
+                        <input
+                            id={id}
+                            name={id}
+                            type={type}
+                            value={formData[id]}
+                            onChange={handleChange}
+                            placeholder={placeholder}
+                            className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        />
+                    </div>
+                ))}
 
                 <button
                     type="submit"
-                    className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 mt-2"
+                    disabled={loading}
+                    className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold rounded-lg transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 mt-2"
                 >
-                    Create Account
+                    {loading ? 'Creating Account...' : 'Create Account'}
                 </button>
             </form>
 
