@@ -9,9 +9,30 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
-app.use(express.json({ limit: '20mb' }));
-app.use(cors());
+// CORS — allow Netlify frontend and localhost dev
+const allowedOrigins = [
+   'https://truthstorm.netlify.app',
+   'https://truthstorm.vercel.app',
+   'http://localhost:5173',
+   'http://localhost:3000',
+];
+
+app.use(cors({
+   origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl, Postman)
+      if (!origin || allowedOrigins.includes(origin)) {
+         callback(null, true);
+      } else {
+         callback(new Error(`CORS blocked for origin: ${origin}`));
+      }
+   },
+   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+   allowedHeaders: ['Content-Type', 'Authorization'],
+   credentials: true,
+}));
+
+// Handle preflight for all routes
+app.options('*', cors());
 
 // Routes
 app.use('/api/auth', authRoutes);
