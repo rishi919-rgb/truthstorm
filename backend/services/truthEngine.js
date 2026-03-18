@@ -8,7 +8,7 @@ import { GoogleGenAI } from '@google/genai';
  */
 const runTruthEngine = async (caption = '', sourceUrl = '', imageData = null) => {
     try {
-        const apiKey = process.env.GEMINI_API_KEY || "AIzaSyAq-zbjl4YS2kkGASUJ5hPH8pfgCSr3JAI";
+        const apiKey = process.env.GEMINI_API_KEY || "AIzaSyC4cVll6o0HDEM3hiLrfVOs7DIzPv4aZCU";
         const ai = new GoogleGenAI({ apiKey });
         const now = new Date();
         const currentDate = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
