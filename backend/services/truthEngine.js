@@ -90,13 +90,13 @@ const runTruthEngine = async (caption = '', sourceUrl = '', imageData = null) =>
             credibilityScore: 50,
             verdict: 'Uncertain',
             confidenceLabel: 'Analysis Failed',
-            report: '⚠️ The AI engine encountered an issue. Please try again.',
+            report: `⚠️ Engine Error: ${error.message}`,
             structuredReport: {
-                observation: 'Unable to analyze the provided content.',
-                inconsistency: 'Engine error prevented full analysis.',
-                conclusion: 'Please resubmit this investigation.',
+                observation: 'Unable to analyze content.',
+                inconsistency: error.message,
+                conclusion: 'Please check API configuration.',
             },
-            keyFindings: ['Engine error during analysis.'],
+            keyFindings: ['Engine error: ' + error.message],
         };
     }
 };
