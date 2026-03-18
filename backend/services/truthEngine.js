@@ -8,10 +8,8 @@ import { GoogleGenAI } from '@google/genai';
  */
 const runTruthEngine = async (caption = '', sourceUrl = '', imageData = null) => {
     try {
-        if (!process.env.GEMINI_API_KEY) {
-            throw new Error("GEMINI_API_KEY is not defined in environment variables");
-        }
-        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+        const apiKey = process.env.GEMINI_API_KEY || "AIzaSyAq-zbjl4YS2kkGASUJ5hPH8pfgCSr3JAI";
+        const ai = new GoogleGenAI({ apiKey });
         const now = new Date();
         const currentDate = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 

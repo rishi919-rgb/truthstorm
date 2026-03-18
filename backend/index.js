@@ -57,7 +57,7 @@ connectDB();
 
 // Basic route to test the server
 app.get('/', (req, res) => {
-   res.json({ message: 'TruthStorm AI API is running' });
+   res.json({ message: 'TruthStorm AI API is running', version: '1.1.0' });
 });
 
 const PORT = process.env.PORT || 5000;
