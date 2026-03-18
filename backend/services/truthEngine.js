@@ -1,8 +1,5 @@
 import { GoogleGenAI } from '@google/genai';
 
-// Initialize the Google Gen AI SDK
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
 /**
  * Runs the TruthStorm AI Engine.
  * @param {string} caption - The text claim to analyze.
@@ -11,6 +8,10 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
  */
 const runTruthEngine = async (caption = '', sourceUrl = '', imageData = null) => {
     try {
+        if (!process.env.GEMINI_API_KEY) {
+            throw new Error("GEMINI_API_KEY is not defined in environment variables");
+        }
+        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
         const now = new Date();
         const currentDate = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
