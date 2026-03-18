@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 
 /**
  * Runs the TruthStorm AI Engine.
@@ -9,7 +9,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 const runTruthEngine = async (caption = '', sourceUrl = '', imageData = null) => {
     try {
         const apiKey = process.env.GEMINI_API_KEY || "AIzaSyC4cVll6o0HDEM3hiLrfVOs7DIzPv4aZCU";
-        const genAI = new GoogleGenerativeAI(apiKey);
+        const ai = new GoogleGenAI({ apiKey });
         const now = new Date();
         const currentDate = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
@@ -58,16 +58,16 @@ const runTruthEngine = async (caption = '', sourceUrl = '', imageData = null) =>
         if (hasImage) {
             contents = [{ role: 'user', parts: [{ text: prompt }, { inlineData: { mimeType: imageData.mimeType, data: imageData.base64 } }] }];
         } else {
-            contents = [{ role: 'user', parts: [{ text: prompt }] }];
+            contents = prompt;
         }
 
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-        const response = await model.generateContent({
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
             contents,
-            generationConfig: { responseMimeType: "application/json" }
+            config: { responseMimeType: "application/json" }
         });
 
-        const parsedData = JSON.parse(response.response.text());
+        const parsedData = JSON.parse(response.text);
 
         return {
             credibilityScore: parsedData.credibilityScore,
@@ -83,50 +83,18 @@ const runTruthEngine = async (caption = '', sourceUrl = '', imageData = null) =>
         };
 
     } catch (error) {
-        console.error('Truth Engine Error:', error.message);
-        
-        // Enhanced fallback analysis based on claim content
-        const claimLower = (caption || '').toLowerCase();
-        let credibilityScore = 50;
-        let verdict = 'Uncertain';
-        let analysis = '';
-        
-        // Simple heuristics for common claim types
-        if (claimLower.includes('shinchan') || claimLower.includes('cartoon') || claimLower.includes('anime')) {
-            credibilityScore = 85;
-            verdict = 'Likely True';
-            analysis = 'Shin-chan is a well-established Japanese manga and anime series that has been broadcast since 1992.';
-        } else if (claimLower.includes('fake') || claimLower.includes('hoax') || claimLower.includes('scam')) {
-            credibilityScore = 30;
-            verdict = 'Likely False';
-            analysis = 'Claims about fake content or hoaxes require careful verification from trusted sources.';
-        } else if (claimLower.includes('news') || claimLower.includes('breaking') || claimLower.includes('urgent')) {
-            credibilityScore = 45;
-            verdict = 'Uncertain';
-            analysis = 'Breaking news claims should be verified through multiple reputable news sources.';
-        } else {
-            credibilityScore = Math.floor(Math.random() * 30) + 40; // Random score between 40-70
-            verdict = credibilityScore > 60 ? 'Uncertain' : 'Uncertain';
-            analysis = `Analysis of claim: "${caption}". Requires verification from trusted sources.`;
-        }
-        
+        console.error('Truth Engine Error:', error);
         return {
-            credibilityScore,
-            verdict,
-            confidenceLabel: 'Analysis Limited',
-            report: analysis,
+            credibilityScore: 50,
+            verdict: 'Uncertain',
+            confidenceLabel: 'Analysis Failed',
+            report: `⚠️ Engine Error: ${error.message}`,
             structuredReport: {
-                observation: `Claim analyzed: "${caption || 'No claim provided'}"`,
-                inconsistency: 'Limited verification capabilities - manual fact-checking recommended',
-                conclusion: 'Please verify with trusted sources'
+                observation: 'Unable to analyze content.',
+                inconsistency: error.message,
+                conclusion: 'Please check API configuration.',
             },
-            keyFindings: [
-                'API access currently limited',
-                'Manual verification required',
-                'Check multiple trusted sources',
-                'Consider official statements',
-                'Look for primary source evidence'
-            ],
+            keyFindings: ['Engine error: ' + error.message],
         };
     }
 };
