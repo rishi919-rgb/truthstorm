@@ -34,6 +34,10 @@ app.use(cors({
 // Handle preflight for all routes
 app.options('*', cors());
 
+// Body parsing — MUST come before routes
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/investigations', investigationRoutes);
