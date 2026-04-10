@@ -58,7 +58,7 @@ const runTruthEngine = async (caption = '', sourceUrl = '', imageData = null) =>
         if (hasImage) {
             contents = [{ role: 'user', parts: [{ text: prompt }, { inlineData: { mimeType: imageData.mimeType, data: imageData.base64 } }] }];
         } else {
-            contents = prompt;
+            contents = [{ role: 'user', parts: [{ text: prompt }] }];
         }
 
         const response = await ai.models.generateContent({
