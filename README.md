@@ -151,8 +151,12 @@ Point your hosting to the `frontend/` directory with:
 | **Build Command** | `npm run build` |
 | **Output Directory** | `dist` |
 
+Set `VITE_API_URL` in the hosting dashboard for production builds.
+If it is missing, the frontend falls back to localhost during build-time and the live site will call `http://localhost:5001/api` from the browser.
+
 ### Backend (Render / Railway)
 Deploy the `backend/` directory as a Node.js web service and set the same `.env` variables in your provider's dashboard.
+Do not pass API keys on the command line and do not store real secrets in tracked files.
 
 ---
 
