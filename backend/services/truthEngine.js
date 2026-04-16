@@ -8,7 +8,10 @@ import { GoogleGenAI } from '@google/genai';
  */
 const runTruthEngine = async (caption = '', sourceUrl = '', imageData = null) => {
     try {
-        const apiKey = process.env.GEMINI_API_KEY || "AIzaSyC4cVll6o0HDEM3hiLrfVOs7DIzPv4aZCU";
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) {
+            throw new Error('Missing GEMINI_API_KEY on the server.');
+        }
         const ai = new GoogleGenAI({ apiKey });
         const now = new Date();
         const currentDate = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
